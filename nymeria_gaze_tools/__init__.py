@@ -46,6 +46,8 @@ from nymeria_gaze_tools.preprocessing import (
 from nymeria_gaze_tools.events import (
     detect_fixations_idt,
     get_fixation_table,
+    detect_saccades,
+    get_saccade_table,
 )
 
 # from nymeria_gaze_tools.metrics import (

@@ -110,3 +110,71 @@ def get_fixation_table(
         return pd.DataFrame(columns=_FIXATION_COLUMNS)
 
     return pd.DataFrame(fixations)
+
+
+# ---------------------------------------------------------------------------
+# Saccade detection (inter-fixation)
+# ---------------------------------------------------------------------------
+
+_DEFAULT_MAX_SACCADE_MS: float = 200.0
+
+_SACCADE_COLUMNS = [
+    "start_time_s", "end_time_s", "duration_ms",
+    "from_yaw_deg", "from_pitch_deg", "to_yaw_deg", "to_pitch_deg",
+    "amplitude_deg", "event_type",
+]
+
+
+def detect_saccades(
+    fixations: list[dict],
+    max_saccade_ms: float = _DEFAULT_MAX_SACCADE_MS,
+) -> list[dict]:
+    """Derive saccades from gaps between consecutive fixations.
+
+    At 10Hz, velocity-based detection is too noisy — so saccades are defined
+    as the movement between two fixation centroids. Gaps longer than
+    max_saccade_ms are likely blinks or dropouts and are labeled 'artifact'.
+
+    Parameters
+    ----------
+    fixations : list[dict]
+        Output of detect_fixations_idt().
+    max_saccade_ms : float
+        Gaps longer than this are labeled 'artifact' instead of 'saccade'.
+    """
+    saccades = []
+
+    for curr, nxt in zip(fixations, fixations[1:]):
+        start  = curr["end_time_s"]
+        end    = nxt["start_time_s"]
+        dur_ms = (end - start) * 1000.0
+
+        d_yaw   = nxt["avg_yaw_deg"]   - curr["avg_yaw_deg"]
+        d_pitch = nxt["avg_pitch_deg"] - curr["avg_pitch_deg"]
+
+        saccades.append({
+            "start_time_s":  float(start),
+            "end_time_s":    float(end),
+            "duration_ms":   float(dur_ms),
+            "from_yaw_deg":  float(curr["avg_yaw_deg"]),
+            "from_pitch_deg": float(curr["avg_pitch_deg"]),
+            "to_yaw_deg":    float(nxt["avg_yaw_deg"]),
+            "to_pitch_deg":  float(nxt["avg_pitch_deg"]),
+            "amplitude_deg": float(np.sqrt(d_yaw**2 + d_pitch**2)),
+            "event_type":    "saccade" if dur_ms <= max_saccade_ms else "artifact",
+        })
+
+    return saccades
+
+
+def get_saccade_table(
+    fixations: list[dict],
+    max_saccade_ms: float = _DEFAULT_MAX_SACCADE_MS,
+) -> pd.DataFrame:
+    """Run detect_saccades and return results as a tidy DataFrame."""
+    saccades = detect_saccades(fixations, max_saccade_ms=max_saccade_ms)
+
+    if not saccades:
+        return pd.DataFrame(columns=_SACCADE_COLUMNS)
+
+    return pd.DataFrame(saccades)
