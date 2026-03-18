@@ -133,3 +133,78 @@ def plot_gaze_scatter(
     )
 
     return fig
+
+
+def plot_gaze_heatmap(
+    df: pd.DataFrame,
+    x: str = "avg_yaw_deg",
+    y: str = "pitch_deg",
+    bins: int = 60,
+    colormap: str = "YlOrRd",
+    title: str = None,
+) -> go.Figure:
+    """2D density heatmap (count per bin) for any two gaze columns.
+
+    Empty bins are transparent. colormap accepts any Plotly colorscale name.
+    """
+    _title = title or f"Joint distribution:  {x}  ×  {y}"
+
+    fig = go.Figure()
+    fig.add_trace(go.Histogram2d(
+        x=df[x], y=df[y],
+        nbinsx=bins, nbinsy=bins,
+        colorscale=colormap,
+        zmin=1,
+        colorbar=dict(title="Count"),
+    ))
+
+    fig.add_hline(y=0, line=dict(color="white", width=0.8, dash="dash"))
+    fig.add_vline(x=0, line=dict(color="white", width=0.8, dash="dash"))
+
+    fig.update_layout(
+        title_text=_title,
+        xaxis_title=x,
+        yaxis_title=y,
+        height=500,
+    )
+
+    return fig
+
+
+def plot_velocity_trace(
+    df: pd.DataFrame,
+    fixations: pd.DataFrame = None,
+    meta: dict = None,
+    title: str = None,
+    height: int = 400,
+) -> go.Figure:
+    """Angular velocity over time with optional fixation shading."""
+    meta   = meta or {}
+    t      = df["elapsed_time_s"]
+    _title = title or f"Angular Velocity — {meta.get('script', '')} | {meta.get('location', '')}".strip(" — |")
+
+    fig = go.Figure()
+
+    if fixations is not None and not fixations.empty:
+        for _, r in fixations.iterrows():
+            fig.add_shape(type="rect",
+                          x0=r["start_time_s"], x1=r["end_time_s"],
+                          y0=0, y1=1, yref="y domain",
+                          fillcolor="rgba(0,180,0,0.15)", line_width=0)
+
+    fig.add_trace(go.Scatter(
+        x=t, y=df["angular_velocity_deg_s"],
+        mode="lines",
+        line=dict(width=0.8, color="crimson"),
+        name="Angular velocity",
+    ))
+
+    fig.update_layout(
+        title_text=_title,
+        height=height,
+        xaxis=dict(title="Time (s)", rangeslider=dict(visible=True, thickness=0.05)),
+        yaxis_title="Speed (°/s)",
+        showlegend=False,
+    )
+
+    return fig
