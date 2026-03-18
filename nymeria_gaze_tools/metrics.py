@@ -80,7 +80,7 @@ def session_summary(
         fixations = get_fixation_table(df)
 
     if saccades is None:
-        saccades = get_saccade_table(fixations.to_dict("records"))
+        saccades = get_saccade_table(fixations.to_dict("records"), df=df)
 
     recording_duration_s = float(df["elapsed_time_s"].iloc[-1])
     hz = sampling_rate_hz if sampling_rate_hz is not None else compute_sampling_rate(df)

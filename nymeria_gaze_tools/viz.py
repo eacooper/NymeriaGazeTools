@@ -6,6 +6,7 @@ All functions return a Plotly figure — call .show() or display in a notebook.
 
 from __future__ import annotations
 
+import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
@@ -129,7 +130,8 @@ def plot_gaze_scatter(
         title_text=_title,
         xaxis_title=x,
         yaxis_title=y,
-        height=550,
+        width=650, height=550,
+        autosize=False,
     )
 
     return fig
@@ -165,7 +167,8 @@ def plot_gaze_heatmap(
         title_text=_title,
         xaxis_title=x,
         yaxis_title=y,
-        height=500,
+        width=550, height=550,
+        autosize=False,
     )
 
     return fig
@@ -205,6 +208,57 @@ def plot_velocity_trace(
         xaxis=dict(title="Time (s)", rangeslider=dict(visible=True, thickness=0.05)),
         yaxis_title="Speed (°/s)",
         showlegend=False,
+    )
+
+    return fig
+
+
+def plot_main_sequence(
+    saccades: pd.DataFrame,
+    title: str = None,
+) -> go.Figure:
+    """Saccade amplitude vs peak velocity (main sequence).
+
+    Saccades in blue, artifacts in gray. Power-law fit overlaid if >= 10 saccades.
+    Requires peak_velocity_deg_s — run get_saccade_table(fixations, df=df).
+    """
+    sac = saccades[saccades["event_type"] == "saccade"]
+    art = saccades[saccades["event_type"] == "artifact"]
+
+    fig = go.Figure()
+
+    if not art.empty:
+        fig.add_trace(go.Scatter(
+            x=art["amplitude_deg"], y=art["peak_velocity_deg_s"],
+            mode="markers", name="Artifact",
+            marker=dict(size=4, color="lightgray", opacity=0.5),
+        ))
+
+    if not sac.empty:
+        fig.add_trace(go.Scatter(
+            x=sac["amplitude_deg"], y=sac["peak_velocity_deg_s"],
+            mode="markers", name="Saccade",
+            marker=dict(size=5, color="royalblue", opacity=0.7),
+        ))
+
+        valid = sac.dropna(subset=["amplitude_deg", "peak_velocity_deg_s"])
+        valid = valid[valid["amplitude_deg"] > 0]
+        if len(valid) >= 10:
+            coeffs = np.polyfit(np.log(valid["amplitude_deg"]), np.log(valid["peak_velocity_deg_s"]), 1)
+            x_fit  = np.linspace(valid["amplitude_deg"].min(), valid["amplitude_deg"].max(), 200)
+            y_fit  = np.exp(coeffs[1]) * x_fit ** coeffs[0]
+            fig.add_trace(go.Scatter(
+                x=x_fit, y=y_fit, mode="lines",
+                name=f"Power law (exp={coeffs[0]:.2f})",
+                line=dict(color="crimson", width=2),
+            ))
+
+    fig.update_layout(
+        title_text=title or "Main Sequence — Saccade Amplitude vs Peak Velocity",
+        xaxis_title="Amplitude (°)",
+        yaxis_title="Peak Velocity (°/s)",
+        width=580, height=500,
+        autosize=False,
     )
 
     return fig

@@ -121,12 +121,13 @@ _DEFAULT_MAX_SACCADE_MS: float = 200.0
 _SACCADE_COLUMNS = [
     "start_time_s", "end_time_s", "duration_ms",
     "from_yaw_deg", "from_pitch_deg", "to_yaw_deg", "to_pitch_deg",
-    "amplitude_deg", "event_type",
+    "amplitude_deg", "peak_velocity_deg_s", "event_type",
 ]
 
 
 def detect_saccades(
     fixations: list[dict],
+    df: pd.DataFrame = None,
     max_saccade_ms: float = _DEFAULT_MAX_SACCADE_MS,
 ) -> list[dict]:
     """Derive saccades from gaps between consecutive fixations.
@@ -134,13 +135,7 @@ def detect_saccades(
     At 10Hz, velocity-based detection is too noisy — so saccades are defined
     as the movement between two fixation centroids. Gaps longer than
     max_saccade_ms are likely blinks or dropouts and are labeled 'artifact'.
-
-    Parameters
-    ----------
-    fixations : list[dict]
-        Output of detect_fixations_idt().
-    max_saccade_ms : float
-        Gaps longer than this are labeled 'artifact' instead of 'saccade'.
+    Pass df to extract peak_velocity_deg_s from the raw velocity signal.
     """
     saccades = []
 
@@ -152,16 +147,23 @@ def detect_saccades(
         d_yaw   = nxt["avg_yaw_deg"]   - curr["avg_yaw_deg"]
         d_pitch = nxt["avg_pitch_deg"] - curr["avg_pitch_deg"]
 
+        if df is not None:
+            window = df[(df["elapsed_time_s"] >= start) & (df["elapsed_time_s"] <= end)]
+            peak_vel = float(window["angular_velocity_deg_s"].max()) if not window.empty else float("nan")
+        else:
+            peak_vel = float("nan")
+
         saccades.append({
-            "start_time_s":  float(start),
-            "end_time_s":    float(end),
-            "duration_ms":   float(dur_ms),
-            "from_yaw_deg":  float(curr["avg_yaw_deg"]),
-            "from_pitch_deg": float(curr["avg_pitch_deg"]),
-            "to_yaw_deg":    float(nxt["avg_yaw_deg"]),
-            "to_pitch_deg":  float(nxt["avg_pitch_deg"]),
-            "amplitude_deg": float(np.sqrt(d_yaw**2 + d_pitch**2)),
-            "event_type":    "saccade" if dur_ms <= max_saccade_ms else "artifact",
+            "start_time_s":       float(start),
+            "end_time_s":         float(end),
+            "duration_ms":        float(dur_ms),
+            "from_yaw_deg":       float(curr["avg_yaw_deg"]),
+            "from_pitch_deg":     float(curr["avg_pitch_deg"]),
+            "to_yaw_deg":         float(nxt["avg_yaw_deg"]),
+            "to_pitch_deg":       float(nxt["avg_pitch_deg"]),
+            "amplitude_deg":      float(np.sqrt(d_yaw**2 + d_pitch**2)),
+            "peak_velocity_deg_s": peak_vel,
+            "event_type":         "saccade" if dur_ms <= max_saccade_ms else "artifact",
         })
 
     return saccades
@@ -169,10 +171,11 @@ def detect_saccades(
 
 def get_saccade_table(
     fixations: list[dict],
+    df: pd.DataFrame = None,
     max_saccade_ms: float = _DEFAULT_MAX_SACCADE_MS,
 ) -> pd.DataFrame:
     """Run detect_saccades and return results as a tidy DataFrame."""
-    saccades = detect_saccades(fixations, max_saccade_ms=max_saccade_ms)
+    saccades = detect_saccades(fixations, df=df, max_saccade_ms=max_saccade_ms)
 
     if not saccades:
         return pd.DataFrame(columns=_SACCADE_COLUMNS)
