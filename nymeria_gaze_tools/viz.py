@@ -93,3 +93,43 @@ def plot_gaze_timeseries(
     fig.update_yaxes(title_text="Depth (m)", row=3, col=1)
 
     return fig
+
+
+def plot_gaze_scatter(
+    df: pd.DataFrame,
+    x: str = "avg_yaw_deg",
+    y: str = "pitch_deg",
+    color: str = "elapsed_time_s",
+    colormap: str = "viridis",
+    meta: dict = None,
+    title: str = None,
+) -> go.Figure:
+    """2D gaze scatter plot colored by a third variable.
+
+    x, y, color accept any column name in df. Default: yaw vs pitch colored by time.
+    colormap accepts any Plotly colorscale name (e.g. 'viridis', 'plasma', 'turbo').
+    """
+    meta   = meta or {}
+    _title = title or f"{x}  vs  {y}  —  colored by {color}"
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=df[x], y=df[y],
+        mode="markers",
+        marker=dict(size=3, color=df[color], colorscale=colormap, opacity=0.6,
+                    colorbar=dict(title=color)),
+        hovertemplate=f"{x}: %{{x:.2f}}<br>{y}: %{{y:.2f}}<br>{color}: %{{marker.color:.2f}}<extra></extra>",
+    ))
+
+    # crosshairs at origin for spatial reference
+    fig.add_hline(y=0, line=dict(color="gray", width=0.7, dash="dash"))
+    fig.add_vline(x=0, line=dict(color="gray", width=0.7, dash="dash"))
+
+    fig.update_layout(
+        title_text=_title,
+        xaxis_title=x,
+        yaxis_title=y,
+        height=550,
+    )
+
+    return fig
