@@ -66,11 +66,13 @@ def session_summary(
     df: pd.DataFrame,
     fixations: pd.DataFrame = None,
     saccades: pd.DataFrame = None,
+    sampling_rate_hz: float = None,
     **metadata,
 ) -> pd.DataFrame:
     """Single-row summary combining fixation and saccade metrics for one session.
 
     Computes fixation/saccade tables internally if not provided.
+    Pass sampling_rate_hz from the raw df to avoid NaN-gap inflation.
     Pass metadata as kwargs (e.g. participant='Alice', activity='cooking') —
     these become the first columns, making pd.concat across sessions easy.
     """
@@ -81,11 +83,12 @@ def session_summary(
         saccades = get_saccade_table(fixations.to_dict("records"))
 
     recording_duration_s = float(df["elapsed_time_s"].iloc[-1])
+    hz = sampling_rate_hz if sampling_rate_hz is not None else compute_sampling_rate(df)
 
     row = {
         **metadata,
         "recording_duration_s":  round(recording_duration_s, 2),
-        "sampling_rate_hz":      round(compute_sampling_rate(df), 2),
+        "sampling_rate_hz":      round(hz, 2),
         "mean_vergence_deg":     round(df["vergence_deg"].mean(), 3),
         **fixation_metrics(fixations, recording_duration_s),
         **saccade_metrics(saccades),
