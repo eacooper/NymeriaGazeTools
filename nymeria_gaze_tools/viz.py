@@ -36,11 +36,15 @@ def _confidence_band(
 
 def plot_gaze_timeseries(
     df: pd.DataFrame,
+    fixations: pd.DataFrame = None,
     meta: dict = None,
     title: str = None,
     height: int = 750,
 ) -> go.Figure:
-    """3-panel interactive plot: Yaw (L/R/avg + CI bands), Pitch (+ CI), Depth."""
+    """Interactive gaze time series: Yaw, Pitch, Depth (+ optional fixation shading).
+
+    Pass fixations to shade fixation windows on Yaw and Pitch panels.
+    """
     meta = meta or {}
     t    = df["elapsed_time_s"]
 
@@ -48,6 +52,16 @@ def plot_gaze_timeseries(
         rows=3, cols=1, shared_xaxes=True, vertical_spacing=0.08,
         subplot_titles=("Horizontal Gaze — Yaw", "Vertical Gaze — Pitch", "Gaze Depth"),
     )
+
+    # fixation shading — uses y domain coords so it doesn't affect axis scaling
+    if fixations is not None and not fixations.empty:
+        for _, r in fixations.iterrows():
+            for row in (1, 2):
+                fig.add_shape(type="rect",
+                              x0=r["start_time_s"], x1=r["end_time_s"],
+                              y0=0, y1=1, yref="y domain",
+                              fillcolor="rgba(0,180,0,0.15)", line_width=0,
+                              row=row, col=1)
 
     _confidence_band(fig, 1, t,
                      df["left_yaw_low_deg"],  df["left_yaw_high_deg"],  df["left_yaw_deg"],
