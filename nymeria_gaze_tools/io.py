@@ -8,12 +8,32 @@ import os
 from pathlib import Path
 
 import pandas as pd
+from huggingface_hub import hf_hub_download
 
 
 HF_REPO_ID   = "nymeriagazedata/eye-gaze-data"
 HF_REPO_TYPE = "dataset"
 HF_CACHE_DIR = Path.home() / ".cache" / "nymeria_gaze_tools"
 HF_TOKEN     = os.environ.get("HF_TOKEN")
+
+
+def _hf_download(filename: str, repo_id: str, token: str | None) -> Path:
+    return Path(hf_hub_download(
+        repo_id=repo_id,
+        repo_type=HF_REPO_TYPE,
+        filename=filename,
+        token=token or HF_TOKEN,
+        cache_dir=HF_CACHE_DIR,
+    ))
+
+
+def _read_metadata_csv(path: Path) -> pd.DataFrame:
+    df = pd.read_csv(path)
+    if "has_gaze_data" in df.columns:
+        df["has_gaze_data"] = df["has_gaze_data"].map(
+            lambda v: str(v).strip().lower() == "true"
+        )
+    return df
 
 
 def _resolve_data_root(data_root: str | Path | None) -> Path:
@@ -37,15 +57,11 @@ def load_metadata(
                 f"metadata.csv not found at: {meta_path}\n"
                 "Set data_root or ensure data/processed/metadata.csv exists."
             )
-        df = pd.read_csv(meta_path)
-        if "has_gaze_data" in df.columns:
-            df["has_gaze_data"] = df["has_gaze_data"].map(
-                lambda v: str(v).strip().lower() == "true"
-            )
-        return df
+        return _read_metadata_csv(meta_path)
 
     elif source == "huggingface":
-        raise NotImplementedError("HuggingFace loading not yet implemented.")
+        path = _hf_download("processed/metadata.csv", repo_id, token)
+        return _read_metadata_csv(path)
     else:
         raise ValueError(f"Unknown source '{source}'. Use 'local' or 'huggingface'.")
 
@@ -70,7 +86,9 @@ def load_session(
         return pd.read_csv(csv_path)
 
     elif source == "huggingface":
-        raise NotImplementedError("HuggingFace loading not yet implemented.")
+        uid = sequence_uid.removesuffix(".csv")
+        path = _hf_download(f"processed/eye_gaze/{uid}.csv", repo_id, token)
+        return pd.read_csv(path)
     else:
         raise ValueError(f"Unknown source '{source}'. Use 'local' or 'huggingface'.")
 
