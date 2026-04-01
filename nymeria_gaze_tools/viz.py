@@ -6,6 +6,8 @@ All functions return a Plotly figure — call .show() or display in a notebook.
 
 from __future__ import annotations
 
+import math
+
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -332,6 +334,7 @@ def plot_population_density_grid(
     colormap: str = "viridis",
     title: str = None,
     panel_size: int = 420,
+    n_cols: int = None,
 ) -> go.Figure:
     """Side-by-side population density heatmaps for multiple groups.
 
@@ -343,12 +346,18 @@ def plot_population_density_grid(
         e.g. {"Male": [df1, df2], "Female": [df3, df4]}
     panel_size : int
         Width and height of each individual panel in pixels.
+    n_cols : int, optional
+        Number of columns. Defaults to all panels in one row.
+        e.g. n_cols=2 wraps 6 groups into a 3x2 grid.
     """
     labels = [lbl for lbl, dfs in groups.items() if dfs]
     n      = len(labels)
 
     if n == 0:
         raise ValueError("No groups with data provided.")
+
+    n_cols = n_cols or n
+    n_rows = math.ceil(n / n_cols)
 
     # shared grid so all panels use identical axes
     all_dfs   = [df for dfs in groups.values() for df in dfs]
@@ -375,13 +384,16 @@ def plot_population_density_grid(
     zmax = max(z.max() for z in z_maps)
 
     fig = make_subplots(
-        rows=1, cols=n,
+        rows=n_rows, cols=n_cols,
         subplot_titles=[f"{lbl}  (n={len(groups[lbl])})" for lbl in labels],
         horizontal_spacing=0.06,
+        vertical_spacing=0.1,
     )
 
-    for col_idx, (lbl, z) in enumerate(zip(labels, z_maps), start=1):
-        show_colorbar = col_idx == n  # only on the rightmost panel
+    for idx, (lbl, z) in enumerate(zip(labels, z_maps)):
+        row = idx // n_cols + 1
+        col = idx % n_cols + 1
+        show_colorbar = idx == n - 1
         fig.add_trace(
             go.Heatmap(
                 x=x_centers, y=y_centers, z=z,
@@ -390,20 +402,20 @@ def plot_population_density_grid(
                 colorbar=dict(title="Density") if show_colorbar else None,
                 showscale=show_colorbar,
             ),
-            row=1, col=col_idx,
+            row=row, col=col,
         )
         fig.add_hline(y=0, line=dict(color="white", width=0.8, dash="dash"),
-                      row=1, col=col_idx)
+                      row=row, col=col)
         fig.add_vline(x=0, line=dict(color="white", width=0.8, dash="dash"),
-                      row=1, col=col_idx)
+                      row=row, col=col)
 
     fig.update_xaxes(title_text=x)
-    fig.update_yaxes(title_text=y, col=1)  # y-label only on leftmost panel
+    fig.update_yaxes(title_text=y, col=1)
 
     fig.update_layout(
         title_text=title or f"Population density by group:  {x}  ×  {y}",
-        width=panel_size * n + 80,
-        height=panel_size + 80,
+        width=panel_size * n_cols + 80,
+        height=panel_size * n_rows + 80,
         autosize=False,
     )
 
