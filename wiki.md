@@ -1,5 +1,6 @@
 # NymeriaGazeTools Wiki
 
+Welcome to the NymeriaGazeTools wiki!
 ---
 
 ## 1. What is NymeriaGazeTools?
@@ -44,7 +45,32 @@ The dataset is roughly gender-balanced: 120 male and 116 female participants. Et
 
 **Activities**
 
-Sessions span 20 scripted activities. Cooking (S7) has the most coverage with 154 sessions, followed by Simon Says (S16, 126) and Where is X (S2, 118). Some activities have limited representation — By My Desk (S14, 17 sessions) and Body Stretch (S4, 19 sessions) are the smallest.
+Sessions span 20 scripted activities:
+
+| Script | Activity |
+|---|---|
+| S1 | Relax at home |
+| S2 | Where is X |
+| S3 | Welcome to my place |
+| S4 | Body stretch |
+| S5 | Workout |
+| S6 | Dance |
+| S7 | Cooking |
+| S8 | Having a meal |
+| S9 | Making a mess |
+| S10 | Housekeeping |
+| S11 | Laundry |
+| S12 | Game night |
+| S13 | Charades |
+| S14 | By my desk |
+| S15 | Do as I command |
+| S16 | Simon says |
+| S17 | In the office |
+| S18 | Hike |
+| S19 | Fresh air |
+| S20 | Party |
+
+Cooking (S7) has the most coverage with 154 sessions, followed by Simon Says (S16, 126) and Where is X (S2, 118). Some activities have limited representation — By My Desk (S14, 17 sessions) and Body Stretch (S4, 19 sessions) are the smallest.
 
 *[image: Who's Doing What — recording volume by ethnicity, gender, age group, gaze type]*
 
