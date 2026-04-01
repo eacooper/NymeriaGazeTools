@@ -54,15 +54,19 @@ def plot_gaze_timeseries(
         subplot_titles=("Horizontal Gaze — Yaw", "Vertical Gaze — Pitch", "Gaze Depth"),
     )
 
-    # fixation shading — uses y domain coords so it doesn't affect axis scaling
+    # fixation shading — build all shapes in one batch for performance
     if fixations is not None and not fixations.empty:
-        for _, r in fixations.iterrows():
-            for row in (1, 2):
-                fig.add_shape(type="rect",
-                              x0=r["start_time_s"], x1=r["end_time_s"],
-                              y0=0, y1=1, yref="y domain",
-                              fillcolor="rgba(0,180,0,0.15)", line_width=0,
-                              row=row, col=1)
+        yref_map = {1: "y domain", 2: "y2 domain"}
+        shapes = [
+            dict(type="rect",
+                 x0=r["start_time_s"], x1=r["end_time_s"],
+                 y0=0, y1=1,
+                 xref="x", yref=yref_map[row],
+                 fillcolor="rgba(0,180,0,0.15)", line_width=0)
+            for _, r in fixations.iterrows()
+            for row in (1, 2)
+        ]
+        fig.update_layout(shapes=shapes)
 
     _confidence_band(fig, 1, t,
                      df["left_yaw_low_deg"],  df["left_yaw_high_deg"],  df["left_yaw_deg"],
@@ -189,11 +193,14 @@ def plot_velocity_trace(
     fig = go.Figure()
 
     if fixations is not None and not fixations.empty:
-        for _, r in fixations.iterrows():
-            fig.add_shape(type="rect",
-                          x0=r["start_time_s"], x1=r["end_time_s"],
-                          y0=0, y1=1, yref="y domain",
-                          fillcolor="rgba(0,180,0,0.15)", line_width=0)
+        shapes = [
+            dict(type="rect",
+                 x0=r["start_time_s"], x1=r["end_time_s"],
+                 y0=0, y1=1, yref="y domain",
+                 fillcolor="rgba(0,180,0,0.15)", line_width=0)
+            for _, r in fixations.iterrows()
+        ]
+        fig.update_layout(shapes=shapes)
 
     fig.add_trace(go.Scatter(
         x=t, y=df["angular_velocity_deg_s"],
@@ -258,6 +265,145 @@ def plot_main_sequence(
         xaxis_title="Amplitude (°)",
         yaxis_title="Peak Velocity (°/s)",
         width=580, height=500,
+        autosize=False,
+    )
+
+    return fig
+
+
+def plot_population_density(
+    dfs: list[pd.DataFrame],
+    x: str = "avg_yaw_deg",
+    y: str = "pitch_deg",
+    bins: int = 80,
+    colormap: str = "viridis",
+    title: str = None,
+) -> go.Figure:
+    """Population-level 2D density map averaged across participants.
+
+    Each df is normalized by its sample count before averaging so all
+    participants contribute equally regardless of session length.
+    """
+    _title = title or f"Population density:  {x}  ×  {y}  (n={len(dfs)})"
+
+    # consistent grid across all participants
+    x_all    = pd.concat([df[x].dropna() for df in dfs])
+    y_all    = pd.concat([df[y].dropna() for df in dfs])
+    x_edges  = np.linspace(x_all.min(), x_all.max(), bins + 1)
+    y_edges  = np.linspace(y_all.min(), y_all.max(), bins + 1)
+
+    maps = []
+    for df in dfs:
+        h, _, _ = np.histogram2d(df[x].dropna(), df[y].dropna(), bins=[x_edges, y_edges])
+        total = h.sum()
+        if total > 0:
+            maps.append(h / total)
+
+    z         = np.mean(maps, axis=0).T          # (ybins, xbins) for go.Heatmap
+    x_centers = (x_edges[:-1] + x_edges[1:]) / 2
+    y_centers = (y_edges[:-1] + y_edges[1:]) / 2
+
+    fig = go.Figure()
+    fig.add_trace(go.Heatmap(
+        x=x_centers, y=y_centers, z=z,
+        colorscale=colormap,
+        colorbar=dict(title="Density"),
+    ))
+
+    fig.add_hline(y=0, line=dict(color="white", width=0.8, dash="dash"))
+    fig.add_vline(x=0, line=dict(color="white", width=0.8, dash="dash"))
+
+    fig.update_layout(
+        title_text=_title,
+        xaxis_title=x,
+        yaxis_title=y,
+        width=550, height=550,
+        autosize=False,
+    )
+
+    return fig
+
+
+def plot_population_density_grid(
+    groups: dict[str, list[pd.DataFrame]],
+    x: str = "avg_yaw_deg",
+    y: str = "pitch_deg",
+    bins: int = 80,
+    colormap: str = "viridis",
+    title: str = None,
+    panel_size: int = 420,
+) -> go.Figure:
+    """Side-by-side population density heatmaps for multiple groups.
+
+    All panels share the same axis ranges and color scale for fair comparison.
+
+    Parameters
+    ----------
+    groups : dict mapping label -> list of preprocessed DataFrames
+        e.g. {"Male": [df1, df2], "Female": [df3, df4]}
+    panel_size : int
+        Width and height of each individual panel in pixels.
+    """
+    labels = [lbl for lbl, dfs in groups.items() if dfs]
+    n      = len(labels)
+
+    if n == 0:
+        raise ValueError("No groups with data provided.")
+
+    # shared grid so all panels use identical axes
+    all_dfs   = [df for dfs in groups.values() for df in dfs]
+    x_all     = pd.concat([df[x].dropna() for df in all_dfs])
+    y_all     = pd.concat([df[y].dropna() for df in all_dfs])
+    x_edges   = np.linspace(x_all.min(), x_all.max(), bins + 1)
+    y_edges   = np.linspace(y_all.min(), y_all.max(), bins + 1)
+    x_centers = (x_edges[:-1] + x_edges[1:]) / 2
+    y_centers = (y_edges[:-1] + y_edges[1:]) / 2
+
+    # compute per-group density; track shared color range
+    z_maps = []
+    for lbl in labels:
+        maps = []
+        for df in groups[lbl]:
+            h, _, _ = np.histogram2d(df[x].dropna(), df[y].dropna(),
+                                     bins=[x_edges, y_edges])
+            total = h.sum()
+            if total > 0:
+                maps.append(h / total)
+        z_maps.append(np.mean(maps, axis=0).T if maps else np.zeros((bins, bins)))
+
+    zmin = min(z.min() for z in z_maps)
+    zmax = max(z.max() for z in z_maps)
+
+    fig = make_subplots(
+        rows=1, cols=n,
+        subplot_titles=[f"{lbl}  (n={len(groups[lbl])})" for lbl in labels],
+        horizontal_spacing=0.06,
+    )
+
+    for col_idx, (lbl, z) in enumerate(zip(labels, z_maps), start=1):
+        show_colorbar = col_idx == n  # only on the rightmost panel
+        fig.add_trace(
+            go.Heatmap(
+                x=x_centers, y=y_centers, z=z,
+                colorscale=colormap,
+                zmin=zmin, zmax=zmax,
+                colorbar=dict(title="Density") if show_colorbar else None,
+                showscale=show_colorbar,
+            ),
+            row=1, col=col_idx,
+        )
+        fig.add_hline(y=0, line=dict(color="white", width=0.8, dash="dash"),
+                      row=1, col=col_idx)
+        fig.add_vline(x=0, line=dict(color="white", width=0.8, dash="dash"),
+                      row=1, col=col_idx)
+
+    fig.update_xaxes(title_text=x)
+    fig.update_yaxes(title_text=y, col=1)  # y-label only on leftmost panel
+
+    fig.update_layout(
+        title_text=title or f"Population density by group:  {x}  ×  {y}",
+        width=panel_size * n + 80,
+        height=panel_size + 80,
         autosize=False,
     )
 

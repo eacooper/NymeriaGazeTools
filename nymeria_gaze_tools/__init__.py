@@ -6,15 +6,9 @@ Python toolkit for analyzing eye gaze data from the Nymeria dataset.
 
 __version__ = "0.1.0"
 
-# I-VT saccade detection default
-DEFAULT_VELOCITY_THRESHOLD_DEG_S: float = 30.0
-
 # I-DT fixation detection defaults
 DEFAULT_DISPERSION_THRESHOLD_DEG: float = 1.0
 DEFAULT_MIN_FIXATION_MS: float = 200.0
-
-# Minimum saccade duration
-DEFAULT_MIN_SACCADE_MS: float = 20.0
 
 # ---------------------------------------------------------------------------
 # Re-export public API so callers can do: import nymeria_gaze_tools as ngt
@@ -50,47 +44,25 @@ from nymeria_gaze_tools.events import (
     get_saccade_table,
 )
 
-# from nymeria_gaze_tools.metrics import (
-#     session_summary,
-#     saccade_metrics,
-#     fixation_metrics,
-#     quality_report,
-#     print_gaze_statistics,
-# )
+from nymeria_gaze_tools.metrics import (
+    fixation_metrics,
+    saccade_metrics,
+    session_summary,
+)
 
-# from nymeria_gaze_tools.analysis import (
-#     analyze_session,
-#     compare_two_sessions,
-#     compare_participant_sessions,
-#     analyze_group,
-#     compare_groups,
-# )
+from nymeria_gaze_tools.viz import (
+    plot_gaze_timeseries,
+    plot_gaze_scatter,
+    plot_gaze_heatmap,
+    plot_velocity_trace,
+    plot_main_sequence,
+    plot_population_density,
+    plot_population_density_grid,
+)
 
-# from nymeria_gaze_tools.stats import (
-#     descriptive_stats,
-#     run_anova,
-#     run_ttest,
-#     correlation_matrix,
-#     compare_groups_statistically,
-# )
-
-# from nymeria_gaze_tools.viz import (
-#     # Low-level plotting functions
-#     plot_scatter_2d,
-#     plot_timeseries,
-#     plot_distribution,
-#     plot_heatmap_2d,
-#     plot_scatter_with_trend,
-#     # High-level gaze-specific functions
-#     plot_gaze_scatter_temporal,
-#     plot_gaze_scatter_depth,
-#     plot_gaze_overview,
-#     plot_gaze_timeseries,
-#     plot_distribution_summary,
-#     plot_joint_distribution_summary,
-#     plot_velocity_trace,
-#     plot_velocity_histogram,
-#     plot_main_sequence,
-#     plot_fixation_spatial,
-#     plot_fixation_summary,
-# )
+from nymeria_gaze_tools.analysis import (
+    analyze_session,
+    analyze_sessions,
+    SessionResult,
+    GroupResult,
+)
