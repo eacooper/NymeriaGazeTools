@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nymeria_gaze_tools"
+version = "0.1.0"
+description = "Python toolkit for analyzing eye gaze data from the Nymeria dataset"
+readme = "README.md"
+license = "MIT"
+authors = [{ name = "Emily Cooper", email = "eacooper@berkeley.edu" }]
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "seaborn",
+    "scipy",
+    "plotly",
+    "huggingface_hub>=0.23.0",
+    "tqdm>=4.66.0",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Operating System :: OS Independent",
+]
+
+[tool.setuptools.packages.find]
+include = ["nymeria_gaze_tools*"]
+
+[project.urls]
+Homepage = "https://github.com/eacooper/NymeriaGazeTools"
