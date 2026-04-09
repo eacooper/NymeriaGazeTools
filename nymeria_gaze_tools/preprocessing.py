@@ -140,10 +140,9 @@ def remove_invalid_samples(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def compute_binocular_gaze(df: pd.DataFrame) -> pd.DataFrame:
-    """Compute binocular average gaze angles and vergence."""
+    """Compute binocular average gaze angles."""
     out = df.copy()
     out["avg_yaw_deg"] = (out["left_yaw_deg"] + out["right_yaw_deg"]) / 2.0
-    out["vergence_deg"] = out["right_yaw_deg"] - out["left_yaw_deg"]
     return out
 
 
