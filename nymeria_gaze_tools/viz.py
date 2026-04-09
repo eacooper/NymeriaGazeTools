@@ -228,7 +228,7 @@ def plot_main_sequence(
 ) -> go.Figure:
     """Saccade amplitude vs peak velocity (main sequence).
 
-    Saccades in blue, artifacts in gray. Power-law fit overlaid if >= 10 saccades.
+    Saccades in blue, artifacts in gray.
     Requires peak_velocity_deg_s — run get_saccade_table(fixations, df=df).
     """
     sac = saccades[saccades["event_type"] == "saccade"]
@@ -250,17 +250,6 @@ def plot_main_sequence(
             marker=dict(size=5, color="royalblue", opacity=0.7),
         ))
 
-        valid = sac.dropna(subset=["amplitude_deg", "peak_velocity_deg_s"])
-        valid = valid[valid["amplitude_deg"] > 0]
-        if len(valid) >= 10:
-            coeffs = np.polyfit(np.log(valid["amplitude_deg"]), np.log(valid["peak_velocity_deg_s"]), 1)
-            x_fit  = np.linspace(valid["amplitude_deg"].min(), valid["amplitude_deg"].max(), 200)
-            y_fit  = np.exp(coeffs[1]) * x_fit ** coeffs[0]
-            fig.add_trace(go.Scatter(
-                x=x_fit, y=y_fit, mode="lines",
-                name=f"Power law (exp={coeffs[0]:.2f})",
-                line=dict(color="crimson", width=2),
-            ))
 
     fig.update_layout(
         title_text=title or "Main Sequence — Saccade Amplitude vs Peak Velocity",
