@@ -55,6 +55,6 @@ print(result.summary)
 
 The `EDA/` folder contains Jupyter notebooks demonstrating how to use the toolkit:
 
-- **individual_gaze_analysis.ipynb** — load a single session, run the full pipeline, and explore gaze patterns through time series, heatmaps, and the saccade main sequence
-
-More notebooks covering population-level and cross-activity analyses are in progress.
+- **individual_gaze_analysis.ipynb** — steps through the full pipeline manually for a single session: load, preprocess, detect fixations and saccades, then plot gaze time series, scatter, heatmaps, velocity trace, and the saccade main sequence
+- **quick_analysis.ipynb** — uses the high-level `analyze_session()` and `analyze_sessions()` API to run the full pipeline in one call, covering both single-session and small-batch analysis, with a population density plot at the end
+- **population_gaze_heatmaps.ipynb** — generates population-level gaze density heatmaps across all 20 activities, broken down by age group and by gender, using `plot_population_density_grid()`
