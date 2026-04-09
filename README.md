@@ -53,7 +53,7 @@ print(result.summary)
 
 ## Examples
 
-The `EDA/` folder contains Jupyter notebooks demonstrating how to use the toolkit:
+The `examples/` folder contains Jupyter notebooks demonstrating how to use the toolkit:
 
 - **individual_gaze_analysis.ipynb** — steps through the full pipeline manually for a single session: load, preprocess, detect fixations and saccades, then plot gaze time series, scatter, heatmaps, velocity trace, and the saccade main sequence
 - **quick_analysis.ipynb** — uses the high-level `analyze_session()` and `analyze_sessions()` API to run the full pipeline in one call, covering both single-session and small-batch analysis, with a population density plot at the end
