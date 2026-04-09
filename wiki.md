@@ -25,8 +25,6 @@ Before diving in, here are a few terms that come up throughout this toolkit.
 
 **Binocular Gaze** — A single gaze estimate derived by combining signals from both eyes. It tends to be more stable and reliable than relying on either eye individually.
 
-**Vergence** — The degree to which your two eyes angle toward each other. When focusing on something nearby, the eyes converge inward; for distant objects, they align more in parallel.
-
 **Confidence** — An uncertainty estimate attached to each gaze sample by the model. Samples with low confidence — often caused by blinks or partial occlusion — are typically filtered out before analysis.
 
 **Velocity** — The rate at which gaze angle changes over time. High angular velocity indicates a saccade in progress; values near zero suggest the eye is holding a fixation.
@@ -84,35 +82,64 @@ Most sessions are sampled at 10 Hz (943 out of 1,100). Twenty-six sessions from 
 
 ---
 
-## 4. Getting Started
+## 4. Getting the Data
 
-**Installation**
+Two scripts are provided in `downloadScripts/` for getting the data onto your machine.
+
+**download_from_hf.py**
+
+Downloads the processed dataset from HuggingFace. This is the recommended path for most users.
+
+The dataset is hosted at [huggingface.co/datasets/nymeria-gaze](https://huggingface.co/datasets/nymeria-gaze). You will need a HuggingFace account and an access token set in your environment:
 
 ```bash
-pip install nymeria_gaze_tools
+export HF_TOKEN=your_token
 ```
 
-**Getting your data**
-
-The easiest way is to download the processed dataset from HuggingFace using the provided script:
+Then run:
 
 ```bash
 python downloadScripts/download_from_hf.py --output /path/to/data
 ```
 
-Alternatively, if you want the toolkit to fetch data on demand without downloading everything upfront, pass `source="huggingface"` to `load_metadata()` or `load_session()`:
-
-```python
-import nymeria_gaze_tools as ngt
-
-catalog = ngt.load_metadata(source="huggingface")
-raw = ngt.load_session("sequence_uid_here", source="huggingface")
-```
-
-This downloads and caches individual files as needed. You will need an HF token set in your environment:
+By default it downloads both `processed/` and `raw/`. If you only want the processed dataset to use with this toolkit:
 
 ```bash
-export HF_TOKEN=your_token
+python downloadScripts/download_from_hf.py --output /path/to/data --folder processed
+```
+
+If you want to explore the raw recordings yourself:
+
+```bash
+python downloadScripts/download_from_hf.py --output /path/to/data --folder raw
+```
+
+The script is resume-safe — it skips files that already exist. You can also do a dry run to preview what would be downloaded:
+
+```bash
+python downloadScripts/download_from_hf.py --output /path/to/data --dry-run
+```
+
+**download_eyegaze.py**
+
+Downloads the dataset directly from Meta's Nymeria page using the official download URLs. Use this if you need the raw recordings or do not have HuggingFace access.
+
+Before running, download the `nymeria_download_urls.json` file from the [Nymeria dataset page](https://www.projectaria.com/datasets/nymeria/) and place it at `data/nymeria_download_urls.json`. Then run:
+
+```bash
+python downloadScripts/download_eyegaze.py
+```
+
+This downloads the raw recordings, extracts the gaze CSVs, and builds the processed directory structure the toolkit expects.
+
+---
+
+## 5. Getting Started
+
+**Installation**
+
+```bash
+pip install nymeria_gaze_tools
 ```
 
 **Your first analysis**
@@ -138,7 +165,7 @@ print(result.summary)
 
 ---
 
-## 5. Your Data
+## 6. Your Data
 
 The Nymeria dataset is organized around **sessions** — each one is a single recording of a participant going through an activity. There are over 1,100 of them in total.
 
@@ -155,7 +182,7 @@ To quickly check what is available in your catalog, use `list_participants()`, `
 
 ---
 
-## 6. Preprocessing
+## 7. Preprocessing
 
 Raw gaze data straight from the dataset isn't quite ready for analysis. The preprocessing step cleans it up and prepares it in a consistent format. Run the full pipeline at once with `preprocess()`, or apply individual steps if you need more control. Here's what happens, in order:
 
@@ -169,7 +196,7 @@ Raw gaze data straight from the dataset isn't quite ready for analysis. The prep
 
 5. **Remove invalid samples** — `remove_invalid_samples()` drops any rows with missing or null values.
 
-6. **Compute binocular gaze** — `compute_binocular_gaze()` averages the left and right eye signals into a single estimate of where the person is looking. Vergence is also computed at this step.
+6. **Compute binocular gaze** — `compute_binocular_gaze()` averages the left and right eye signals into a single estimate of where the person is looking.
 
 7. **Compute confidence widths** — `compute_confidence_widths()` calculates how wide the model's confidence intervals are for each sample, which tells you how certain the model was.
 
@@ -179,31 +206,17 @@ Raw gaze data straight from the dataset isn't quite ready for analysis. The prep
 
 ---
 
-## 7. Detecting Fixations & Saccades
+## 8. Detecting Fixations & Saccades *(Experimental)*
 
-Once your data is preprocessed, the next step is identifying the two core gaze events: fixations and saccades.
+> **Note:** Fixation and saccade detection in this toolkit is experimental. The 10 Hz sampling rate of most Nymeria sessions is lower than what standard eye-tracking algorithms are designed for, which limits detection accuracy. Treat these results as approximate and interpret them with care.
 
-**Fixations**
+Once your data is preprocessed, you can identify fixations and saccades using `get_fixation_table()` and `get_saccade_table()`. For a complete single-session pipeline, use `analyze_session()`.
 
-The toolkit uses an algorithm called I-DT (Identification by Dispersion Threshold). The idea is straightforward: it slides a time window across the data and checks whether the gaze points inside it are tightly clustered. If they are, that window is labeled a fixation. It then keeps expanding the window forward until the gaze starts moving again.
-
-Two parameters control this:
-- **Dispersion threshold** *(default: 1°)* — How spread out the gaze can be and still count as a fixation. A smaller value means stricter fixations.
-- **Minimum fixation duration** *(default: 200 ms)* — The shortest event that qualifies as a fixation. Anything briefer is ignored.
-
-Use `get_fixation_table()` to get the result as a DataFrame, where each row is one fixation with its start time, end time, duration, average position, and sample count. For direct access to the list of fixation dicts, use `detect_fixations_idt()`.
-
-**Saccades**
-
-Saccades are derived from the gaps between consecutive fixations. At 10 Hz, the signal is too coarse to detect saccades directly from velocity alone — so instead, each gap between two fixations is treated as a saccade. The toolkit computes its amplitude (how far the eye moved) and peak velocity from the raw signal.
-
-Gaps longer than **200 ms** are flagged as artifacts rather than saccades — these are likely blinks or signal dropouts.
-
-Use `get_saccade_table()` to get the result as a DataFrame, where each row is one inter-fixation event labeled either `saccade` or `artifact`. For direct access to the list of dicts, use `detect_saccades()`.
+Fixations are detected using an I-DT (Identification by Dispersion Threshold) algorithm. Saccades are derived from the gaps between consecutive fixations rather than velocity peaks, since the 10 Hz signal is too coarse for direct velocity-based detection. Gaps longer than 200 ms are flagged as artifacts (likely blinks or dropouts) rather than saccades.
 
 ---
 
-## 8. Metrics
+## 9. Metrics
 
 After detecting fixations and saccades, the toolkit can compute a concise set of numbers that summarize gaze behavior for a session. These are designed to be stacked across many sessions for comparison.
 
@@ -237,11 +250,11 @@ After detecting fixations and saccades, the toolkit can compute a concise set of
 
 **Session summary**
 
-`session_summary()` combines all of the above — plus recording duration, sampling rate, and mean vergence — into a single-row DataFrame for a session. This makes it straightforward to concatenate results across hundreds of sessions and run group-level analyses. For a complete single-session pipeline that returns all of these together, use `analyze_session()`, or `analyze_sessions()` for batch processing.
+`session_summary()` combines all of the above — plus recording duration and sampling rate — into a single-row DataFrame for a session. This makes it straightforward to concatenate results across hundreds of sessions and run group-level analyses. For a complete single-session pipeline that returns all of these together, use `analyze_session()`, or `analyze_sessions()` for batch processing.
 
 ---
 
-## 9. Visualizations
+## 10. Visualizations
 
 All plots are interactive — you can zoom, pan, and hover over data points. They're built with Plotly and work well in Jupyter notebooks.
 
@@ -280,49 +293,3 @@ Shows angular velocity over time. Spikes correspond to saccades; flat, low regio
 **Population Density**
 
 Similar to the heatmap, but built from multiple sessions at once. Each session is normalized by its sample count before averaging, so longer recordings don't dominate the result. Useful for understanding group-level gaze patterns across participants or activities. Use `plot_population_density(dfs)` for a single group, or `plot_population_density_grid(groups)` to compare multiple groups side by side.
-
----
-
-## 10. Download Scripts
-
-Two scripts are provided in `downloadScripts/` for getting the data onto your machine.
-
-**download_from_hf.py**
-
-Downloads the dataset from HuggingFace. This is the recommended path for most users.
-
-```bash
-python downloadScripts/download_from_hf.py --output /path/to/data
-```
-
-By default it downloads both `processed/` and `raw/`. If you only want the processed dataset to use with this toolkit:
-
-```bash
-python downloadScripts/download_from_hf.py --output /path/to/data --folder processed
-```
-
-If you want to explore the raw recordings yourself:
-
-```bash
-python downloadScripts/download_from_hf.py --output /path/to/data --folder raw
-```
-
-The script is resume-safe — it skips files that already exist. You can also do a dry run to preview what would be downloaded:
-
-```bash
-python downloadScripts/download_from_hf.py --output /path/to/data --dry-run
-```
-
-Requires `HF_TOKEN` set in your environment.
-
-**download_eyegaze.py**
-
-Downloads the dataset directly from Meta's Nymeria page using the official download URLs. Use this if you need the raw recordings or do not have HuggingFace access.
-
-Before running, download the `nymeria_download_urls.json` file from the [Nymeria dataset page](https://www.projectaria.com/datasets/nymeria/) and place it at `data/nymeria_download_urls.json`. Then run:
-
-```bash
-python downloadScripts/download_eyegaze.py
-```
-
-This downloads the raw recordings, extracts the gaze CSVs, and builds the processed directory structure the toolkit expects.
