@@ -409,3 +409,55 @@ def plot_population_density_grid(
     )
 
     return fig
+
+
+def plot_gaze_position_boxplots(
+    groups: dict[str, list[pd.DataFrame]],
+    column: str = "avg_yaw_deg",
+    title: str = None,
+) -> go.Figure:
+    """Box-and-whisker plot of raw gaze position across demographic groups.
+
+    Pools all samples from every session in each group and draws one box per
+    group — the population-level 1D equivalent of the density heatmap.
+
+    Parameters
+    ----------
+    groups : dict mapping label -> list of preprocessed DataFrames
+        e.g. {"18-24": [df1, df2], "25-30": [df3, df4]}
+    column : str
+        Column to plot. Typically ``"avg_yaw_deg"`` or ``"pitch_deg"``.
+    title : str, optional
+        Figure title.
+    """
+    colors = [
+        "#636EFA", "#EF553B", "#00CC96", "#AB63FA",
+        "#FFA15A", "#19D3F3", "#FF6692", "#B6E880",
+    ]
+
+    fig = go.Figure()
+
+    for g_idx, (label, dfs) in enumerate(groups.items()):
+        if not dfs:
+            continue
+        values = pd.concat([df[column].dropna() for df in dfs if column in df.columns])
+        fig.add_trace(go.Box(
+            y=values,
+            name=str(label),
+            marker_color=colors[g_idx % len(colors)],
+            boxpoints=False,
+            line=dict(width=1.5),
+        ))
+
+    axis_label = column.replace("avg_", "").replace("_deg", " (°)").replace("_m", " (m)").replace("_", " ").title()
+
+    fig.update_layout(
+        title_text=title or f"Gaze position distribution by group  |  {axis_label}",
+        yaxis_title=axis_label,
+        boxmode="group",
+        width=200 * max(len(groups), 2) + 200,
+        height=500,
+        autosize=False,
+    )
+
+    return fig

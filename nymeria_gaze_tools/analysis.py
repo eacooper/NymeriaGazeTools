@@ -77,10 +77,13 @@ def analyze_sessions(
     for i, (_, row) in enumerate(sessions_df.iterrows(), start=1):
         uid = row["sequence_uid"]
         print(f"[{i}/{n}] {uid}")
-        raw    = load_session(uid, data_root=data_root)
-        result = analyze_session(raw, meta=row.to_dict(), show=show, **preprocess_kwargs)
-        summaries.append(result.summary)
-        dfs.append(result.df)
+        try:
+            raw    = load_session(uid, data_root=data_root)
+            result = analyze_session(raw, meta=row.to_dict(), show=show, **preprocess_kwargs)
+            summaries.append(result.summary)
+            dfs.append(result.df)
+        except Exception as e:
+            print(f"  Skipping {uid}: {e}")
 
     return GroupResult(
         summaries=pd.concat(summaries, ignore_index=True),

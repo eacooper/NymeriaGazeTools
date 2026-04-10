@@ -6,42 +6,9 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-from scipy.stats import kurtosis as scipy_kurtosis
-from scipy.stats import skew as scipy_skew
 
 from nymeria_gaze_tools.events import get_fixation_table, get_saccade_table
 from nymeria_gaze_tools.preprocessing import compute_sampling_rate
-
-
-def gaze_distribution_metrics(df: pd.DataFrame) -> dict:
-    """Mean, variance, std, skewness (excess), kurtosis, range, and IQR
-    for yaw and pitch (degrees), and depth (metres) if present."""
-
-    def _col_stats(series: pd.Series, axis: str, unit: str) -> dict:
-        s = series.dropna().to_numpy(dtype=float)
-        if len(s) < 2:
-            keys = [
-                f"mean_{axis}_{unit}", f"var_{axis}_{unit}", f"std_{axis}_{unit}",
-                f"skew_{axis}", f"kurt_{axis}",
-                f"range_{axis}_{unit}", f"iqr_{axis}_{unit}",
-            ]
-            return {k: np.nan for k in keys}
-        return {
-            f"mean_{axis}_{unit}":  round(float(np.mean(s)), 4),
-            f"var_{axis}_{unit}":   round(float(np.var(s, ddof=1)), 4),
-            f"std_{axis}_{unit}":   round(float(np.std(s, ddof=1)), 4),
-            f"skew_{axis}":         round(float(scipy_skew(s)), 4),
-            f"kurt_{axis}":         round(float(scipy_kurtosis(s)), 4),
-            f"range_{axis}_{unit}": round(float(np.ptp(s)), 4),
-            f"iqr_{axis}_{unit}":   round(float(np.percentile(s, 75) - np.percentile(s, 25)), 4),
-        }
-
-    result = {}
-    result.update(_col_stats(df["avg_yaw_deg"], "yaw",   "deg"))
-    result.update(_col_stats(df["pitch_deg"],   "pitch", "deg"))
-    if "depth_m" in df.columns:
-        result.update(_col_stats(df["depth_m"], "depth", "m"))
-    return result
 
 
 def fixation_metrics(
@@ -122,7 +89,6 @@ def session_summary(
         **metadata,
         "recording_duration_s":  round(recording_duration_s, 2),
         "sampling_rate_hz":      round(hz, 2),
-        **gaze_distribution_metrics(df),
         **fixation_metrics(fixations, recording_duration_s),
         **saccade_metrics(saccades),
     }

@@ -46,7 +46,6 @@ from nymeria_gaze_tools.events import (
 
 from nymeria_gaze_tools.metrics import (
     fixation_metrics,
-    gaze_distribution_metrics,
     saccade_metrics,
     session_summary,
 )
@@ -59,6 +58,7 @@ from nymeria_gaze_tools.viz import (
     plot_main_sequence,
     plot_population_density,
     plot_population_density_grid,
+    plot_gaze_position_boxplots,
 )
 
 from nymeria_gaze_tools.analysis import (
