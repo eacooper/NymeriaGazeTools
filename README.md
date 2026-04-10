@@ -6,24 +6,42 @@ It handles the full analysis pipeline — loading and filtering sessions, prepro
 
 ## Installation
 
-```bash
-pip install nymeria_gaze_tools
-```
-
 Requires Python 3.10 or higher.
 
-To load data directly from HuggingFace, set your token as an environment variable:
+**1. Clone the repo**
 
 ```bash
-export HF_TOKEN=your_token
+git clone https://github.com/eacooper/NymeriaGazeTools.git
+cd NymeriaGazeTools
+```
+
+**2. Create and activate a virtual environment**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate        # Mac/Linux
+# .venv\Scripts\activate         # Windows
+```
+
+**3. Install the package**
+
+```bash
+pip install -e .
+```
+
+**4. Install Jupyter** (needed to run the example notebooks)
+
+```bash
+pip install jupyter ipywidgets
 ```
 
 ## Getting your data
 
-The recommended way is to download directly from HuggingFace. This gives you the processed dataset ready to use:
+The data is not included in the repo. The recommended way is to download from HuggingFace:
 
 ```bash
-python downloadScripts/download_from_hf.py --output /path/to/data
+export HF_TOKEN=your_token
+python downloadScripts/download_from_hf.py --output /path/to/data --folder processed
 ```
 
 If you have the official `nymeria_download_urls.json` from Meta's Nymeria page and want to work from the raw recordings, use:

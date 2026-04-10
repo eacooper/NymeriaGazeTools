@@ -149,9 +149,51 @@ This downloads the raw recordings, extracts the gaze CSVs, and builds the proces
 
 **Installation**
 
+Requires Python 3.10 or higher.
+
+**Step 1 — Clone the repo**
+
 ```bash
-pip install nymeria_gaze_tools
+git clone https://github.com/eacooper/NymeriaGazeTools.git
+cd NymeriaGazeTools
 ```
+
+**Step 2 — Create and activate a virtual environment**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate        # Mac/Linux
+# .venv\Scripts\activate         # Windows
+```
+
+**Step 3 — Install the package**
+
+```bash
+pip install -e .
+```
+
+**Step 4 — Install Jupyter** (needed to run the example notebooks)
+
+```bash
+pip install jupyter ipywidgets
+```
+
+**Step 5 — Download the data**
+
+The data is not included in the repo. Download the processed dataset from HuggingFace (see Section 4 for full options):
+
+```bash
+export HF_TOKEN=your_token
+python downloadScripts/download_from_hf.py --output data/processed --folder processed
+```
+
+**Step 6 — Launch Jupyter and open a notebook**
+
+```bash
+jupyter notebook
+```
+
+Then open `examples/quick_analysis.ipynb` and click **Kernel > Restart & Run All**.
 
 **Your first analysis**
 

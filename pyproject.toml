@@ -8,7 +8,10 @@ version = "0.1.0"
 description = "Python toolkit for analyzing eye gaze data from the Nymeria dataset"
 readme = "README.md"
 license = "MIT"
-authors = [{ name = "Emily Cooper", email = "eacooper@berkeley.edu" }]
+authors = [
+    { name = "Devi Sivakumar", email = "devi.sivakumar2024@gmail.com" },
+    { name = "Emily Cooper", email = "eacooper@berkeley.edu" },
+]
 requires-python = ">=3.10"
 dependencies = [
     "numpy",
