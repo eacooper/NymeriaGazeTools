@@ -1,0 +1,40 @@
+name: Publish Notebooks to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - examples/population_gaze_heatmaps.ipynb
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install nbconvert
+        run: pip install nbconvert
+
+      - name: Convert notebook to HTML
+        run: |
+          jupyter nbconvert \
+            --to html \
+            examples/population_gaze_heatmaps.ipynb \
+            --output-dir site/examples/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          keep_files: true
