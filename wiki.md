@@ -39,7 +39,13 @@ The Nymeria dataset contains **1,100 sessions** recorded across **236 participan
 
 The dataset is roughly gender-balanced: 120 male and 116 female participants. Ethnicity coverage skews toward Caucasian participants (90), with East Asian (35), South Asian (34), African American (30), and Southeast Asian (30) each representing a meaningful share. Hispanic (10) and Other/Mixed (7) participants make up the remainder. Age ranges from 18 to 50, with the largest groups in the 25–30 (58 participants) and 18–24 (49 participants) brackets.
 
-*[image: Who's in the Study — ethnicity, age group, gender breakdown]*
+<img width="400" height="400" alt="Participant_Ethnicity_Distribution" src="https://github.com/user-attachments/assets/23004e07-a4b9-4bef-a5b1-14ef27ad23a4" />
+
+
+<img width="400" height="400" alt="Participant_AgeGroup_Distribution" src="https://github.com/user-attachments/assets/f3b7bc20-2ca4-4ef9-a91a-2e243fcf21e4" />
+
+
+<img width="400" height="400" alt="Participant_Gender_Distribution" src="https://github.com/user-attachments/assets/b42d2429-341c-44bc-8c8d-70c1be065e12" />
 
 **Activities**
 
@@ -70,7 +76,12 @@ Sessions span 20 scripted activities:
 
 Cooking (S7) has the most coverage with 154 sessions, followed by Simon Says (S16, 126) and Where is X (S2, 118). Some activities have limited representation — By My Desk (S14, 17 sessions) and Body Stretch (S4, 19 sessions) are the smallest.
 
-*[image: Who's Doing What — recording volume by ethnicity, gender, age group, gaze type]*
+<img width="732" height="484" alt="RecordingVolume_ethnicityxscript" src="https://github.com/user-attachments/assets/d40cff90-feb3-45dd-acd3-48ffc1a02249" />
+<img width="672" height="464" alt="RecordingVolume_agexscript" src="https://github.com/user-attachments/assets/c920f9c9-d6d6-4fd2-9001-1c198e1175ba" />
+<img width="432" height="492" alt="RecordingVolume_genderxscript" src="https://github.com/user-attachments/assets/39de7b23-b686-447b-baab-604a8fe96ce7" />
+<img width="478" height="512" alt="RecordingVolume_gazeTypexscript" src="https://github.com/user-attachments/assets/b664c3e8-11a3-46ab-a3da-b9d5579cb52b" />
+<img width="1076" height="747" alt="RecordingsPerParticipant_Histogram" src="https://github.com/user-attachments/assets/68247c07-27e6-498e-9582-71373fb151a3" />
+
 
 **Gaze calibration**
 
