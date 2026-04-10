@@ -180,6 +180,10 @@ Load the metadata catalog with `load_metadata()`, which returns a DataFrame with
 
 To quickly check what is available in your catalog, use `list_participants()`, `list_activities()`, and `list_locations()`.
 
+**Known data issues**
+
+Some sessions in the raw metadata carry the age group label `"19-25"`, which is a mislabeling — the correct label for that bracket is `"18-24"`. `load_metadata()` corrects this automatically at load time, so the returned catalog always uses `"18-24"`. No manual fix is needed in your code.
+
 ---
 
 ## 7. Preprocessing

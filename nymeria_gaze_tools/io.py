@@ -27,12 +27,19 @@ def _hf_download(filename: str, repo_id: str, token: str | None) -> Path:
     ))
 
 
+_AGE_GROUP_REMAP = {
+    "19-25": "18-24",
+}
+
+
 def _read_metadata_csv(path: Path) -> pd.DataFrame:
     df = pd.read_csv(path)
     if "has_gaze_data" in df.columns:
         df["has_gaze_data"] = df["has_gaze_data"].map(
             lambda v: str(v).strip().lower() == "true"
         )
+    if "participant_age_group" in df.columns:
+        df["participant_age_group"] = df["participant_age_group"].replace(_AGE_GROUP_REMAP)
     return df
 
 
