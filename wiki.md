@@ -189,6 +189,8 @@ There are two types of files you'll work with:
 
 Load the metadata catalog with `load_metadata()`, which returns a DataFrame with one row per session. From there, use `filter_sessions()` to narrow down by participant, activity, location, age group, gender, or ethnicity. Once you have your filtered list, pass the `sequence_uid` values to `load_session()` or `load_sessions()` to load the corresponding gaze data.
 
+Both `load_metadata()` and `load_session()` accept a `source` argument. The default is `"local"`, which reads from your local `data/processed/` directory. If you haven't downloaded the data, you can load directly from HuggingFace by passing `source="huggingface"` — this requires `HF_TOKEN` to be set in your environment (see Section 4).
+
 To quickly check what is available in your catalog, use `list_participants()`, `list_activities()`, and `list_locations()`.
 
 **Known data issues**
@@ -211,13 +213,13 @@ Raw gaze data straight from the dataset isn't quite ready for analysis. The prep
 
 5. **Remove invalid samples** — `remove_invalid_samples()` drops any rows with missing or null values.
 
-6. **Compute binocular gaze** — `compute_binocular_gaze()` averages the left and right eye signals into a single estimate of where the person is looking.
+6. **Compute binocular gaze** — `compute_binocular_gaze()` averages the left and right eye yaw signals into `avg_yaw_deg`. Note that the dataset provides separate left and right yaw measurements, but only a single pitch signal — so there is no left/right averaging for pitch, just `pitch_deg` directly.
 
 7. **Compute confidence widths** — `compute_confidence_widths()` calculates how wide the model's confidence intervals are for each sample, which tells you how certain the model was.
 
-8. **Filter low-confidence samples** *(optional, no default threshold)* — If a confidence interval is too wide — say, because the person blinked — that sample is dropped. You set the threshold.
+8. **Filter low-confidence samples** *(optional, no default threshold)* — If a confidence interval is too wide — say, because the person blinked — that sample is dropped. Thresholds are set independently for yaw and pitch via `max_yaw_confidence_width_deg` and `max_pitch_confidence_width_deg`.
 
-9. **Compute velocity** — `compute_velocity()` derives angular velocity from the gaze angle over time. If timestamps aren't available, it assumes a 10 Hz sampling rate as a fallback.
+9. **Compute velocity** — `compute_velocity()` produces three columns: `yaw_velocity_deg_s` and `pitch_velocity_deg_s` for the component rates, and `angular_velocity_deg_s` for the combined speed magnitude. If timestamps aren't available, it assumes a 10 Hz sampling rate as a fallback.
 
 ---
 
@@ -265,7 +267,7 @@ After detecting fixations and saccades, the toolkit can compute a concise set of
 
 **Session summary**
 
-`session_summary()` combines all of the above — plus recording duration and sampling rate — into a single-row DataFrame for a session. This makes it straightforward to concatenate results across hundreds of sessions and run group-level analyses. For a complete single-session pipeline that returns all of these together, use `analyze_session()`, or `analyze_sessions()` for batch processing.
+`session_summary()` combines all of the above — plus recording duration and sampling rate — into a single-row DataFrame for a session. This makes it straightforward to concatenate results across hundreds of sessions and run group-level analyses. For a complete single-session pipeline that returns all of these together, use `analyze_session()`, or `analyze_sessions()` for batch processing. The batch function returns a `GroupResult` with two fields: `.summaries` — a single concatenated DataFrame with one row per session, ready for group-level analysis — and `.dfs` — a list of preprocessed DataFrames, one per session, which you can pass directly into the population density plots.
 
 ---
 
@@ -299,12 +301,18 @@ Shows angular velocity over time. Spikes correspond to saccades; flat, low regio
 
 ---
 
-**Main Sequence**
+**Main Sequence** *(Experimental)*
 
-*TO DO*
+Plots saccade amplitude against peak velocity. Saccades appear in blue, artifacts in gray. Because saccade detection is experimental at 10 Hz, treat this as a rough qualitative check rather than precise measurement. Use `plot_main_sequence(saccades)`.
 
 ---
 
 **Population Density**
 
 Similar to the heatmap, but built from multiple sessions at once. Each session is normalized by its sample count before averaging, so longer recordings don't dominate the result. Useful for understanding group-level gaze patterns across participants or activities. Use `plot_population_density(dfs)` for a single group, or `plot_population_density_grid(groups)` to compare multiple groups side by side.
+
+---
+
+**Gaze Position Boxplots**
+
+The 1D counterpart to the population density map. Pools all gaze samples across sessions in each group and draws one box per group, making it easy to compare the spread and central tendency of yaw or pitch across demographics. Pass a `groups` dict mapping labels to lists of preprocessed DataFrames, and set `column` to `"avg_yaw_deg"` or `"pitch_deg"`. Use `plot_gaze_position_boxplots(groups, column="avg_yaw_deg")`.
