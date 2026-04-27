@@ -149,51 +149,9 @@ This downloads the raw recordings, extracts the gaze CSVs, and builds the proces
 
 **Installation**
 
-Requires Python 3.10 or higher.
-
-**Step 1 — Clone the repo**
-
 ```bash
-git clone https://github.com/eacooper/NymeriaGazeTools.git
-cd NymeriaGazeTools
+pip install nymeria_gaze_tools
 ```
-
-**Step 2 — Create and activate a virtual environment**
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate        # Mac/Linux
-# .venv\Scripts\activate         # Windows
-```
-
-**Step 3 — Install the package**
-
-```bash
-pip install -e .
-```
-
-**Step 4 — Install Jupyter** (needed to run the example notebooks)
-
-```bash
-pip install jupyter ipywidgets
-```
-
-**Step 5 — Download the data**
-
-The data is not included in the repo. Download the processed dataset from HuggingFace (see Section 4 for full options):
-
-```bash
-export HF_TOKEN=your_token
-python downloadScripts/download_from_hf.py --output data/processed --folder processed
-```
-
-**Step 6 — Launch Jupyter and open a notebook**
-
-```bash
-jupyter notebook
-```
-
-Then open `examples/quick_analysis.ipynb` and click **Kernel > Restart & Run All**.
 
 **Your first analysis**
 
@@ -322,18 +280,22 @@ All plots are interactive — you can zoom, pan, and hover over data points. The
 **Gaze Time Series**
 
 Shows yaw, pitch, and gaze depth over the full duration of a session, each in its own panel. The left and right eye signals are plotted separately alongside the binocular average, with shaded confidence bands. If you pass in a fixation table, fixation windows are shaded in green. Use `plot_gaze_timeseries(df, fixations=fixations)`.
+<img width="1124" height="750" alt="gazetimeseries" src="https://github.com/user-attachments/assets/86b2d241-414e-4705-ac32-45c790cdc824" />
 
 ---
 
 **Gaze Scatter**
 
 Plots any two gaze-related columns against each other, with a third variable mapped to color. By default it shows yaw vs pitch colored by time, which reveals where in the visual field the person was looking and in what order. Useful for exploring spatial gaze patterns. Use `plot_gaze_scatter(df)`.
+<img width="650" height="550" alt="gazescatter" src="https://github.com/user-attachments/assets/b197a55a-4ab8-4cae-960c-67c98aa31dfe" />
 
 ---
 
 **Gaze Heatmap**
 
-A 2D density map showing where gaze was concentrated across the session. The color intensity reflects how many samples fell in each region. Good for identifying hotspots — areas the person looked at most frequently. Use `plot_gaze_heatmap(df)`.
+A 2D density map showing where gaze was concentrated across the session. The color intensity reflects how many samples fell in each region. Good 
+<img width="550" height="550" alt="gazeheatmap" src="https://github.com/user-attachments/assets/6011e552-8bb3-4dcf-bd06-8c9cadd9c550" />
+for identifying hotspots — areas the person looked at most frequently. Use `plot_gaze_heatmap(df)`.
 
 ---
 
@@ -341,11 +303,15 @@ A 2D density map showing where gaze was concentrated across the session. The col
 
 Shows angular velocity over time. Spikes correspond to saccades; flat, low regions are fixations. If you pass in a fixation table, those periods are shaded in green. Helpful for visually validating your fixation detection results. Use `plot_velocity_trace(df, fixations=fixations)`.
 
+<img width="1124" height="400" alt="gazevelocity" src="https://github.com/user-attachments/assets/9312762b-098f-40f0-8fe4-21302e56f721" />
+
 ---
 
 **Main Sequence** *(Experimental)*
 
 Plots saccade amplitude against peak velocity. Saccades appear in blue, artifacts in gray. Because saccade detection is experimental at 10 Hz, treat this as a rough qualitative check rather than precise measurement. Use `plot_main_sequence(saccades)`.
+
+<img width="580" height="500" alt="mainsequence" src="https://github.com/user-attachments/assets/0325bea5-5bf3-4885-aef7-42d9712215f8" />
 
 ---
 
@@ -358,3 +324,5 @@ Similar to the heatmap, but built from multiple sessions at once. Each session i
 **Gaze Position Boxplots**
 
 The 1D counterpart to the population density map. Pools all gaze samples across sessions in each group and draws one box per group, making it easy to compare the spread and central tendency of yaw or pitch across demographics. Pass a `groups` dict mapping labels to lists of preprocessed DataFrames, and set `column` to `"avg_yaw_deg"` or `"pitch_deg"`. Use `plot_gaze_position_boxplots(groups, column="avg_yaw_deg")`.
+<img width="1400" height="500" alt="boxwhisker" src="https://github.com/user-attachments/assets/cc7fb676-fb78-4d20-8828-3819f2d036f5" />
+
