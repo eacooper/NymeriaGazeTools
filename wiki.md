@@ -101,7 +101,7 @@ Two scripts are provided in `downloadScripts/` for getting the data onto your ma
 
 Downloads the processed dataset from HuggingFace. This is the recommended path for most users.
 
-The dataset is hosted at [huggingface.co/datasets/nymeria-gaze](https://huggingface.co/datasets/nymeria-gaze). You will need a HuggingFace account and an access token set in your environment:
+The dataset is hosted at [huggingface.co/datasets/nymeria-gaze](https://huggingface.co/datasets/nymeriagazedata/eye-gaze-data). You will need a HuggingFace account and an access token set in your environment:
 
 ```bash
 export HF_TOKEN=your_token
