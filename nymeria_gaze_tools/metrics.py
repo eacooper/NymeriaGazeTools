@@ -13,13 +13,14 @@ from nymeria_gaze_tools.preprocessing import compute_sampling_rate
 
 def gaze_signal_metrics(df: pd.DataFrame) -> dict:
     """Mean and variance of yaw, pitch, and depth across all samples in a session."""
+    has_depth = "depth_m" in df.columns
     return {
         "mean_yaw_deg":   round(float(df["avg_yaw_deg"].mean()), 3),
         "var_yaw_deg":    round(float(df["avg_yaw_deg"].var()), 3),
         "mean_pitch_deg": round(float(df["pitch_deg"].mean()), 3),
         "var_pitch_deg":  round(float(df["pitch_deg"].var()), 3),
-        "mean_depth_m":   round(float(df["depth_m"].mean()), 3),
-        "var_depth_m":    round(float(df["depth_m"].var()), 3),
+        "mean_depth_m":   round(float(df["depth_m"].mean()), 3) if has_depth else float("nan"),
+        "var_depth_m":    round(float(df["depth_m"].var()), 3) if has_depth else float("nan"),
     }
 
 
