@@ -11,6 +11,18 @@ from nymeria_gaze_tools.events import get_fixation_table, get_saccade_table
 from nymeria_gaze_tools.preprocessing import compute_sampling_rate
 
 
+def gaze_signal_metrics(df: pd.DataFrame) -> dict:
+    """Mean and variance of yaw, pitch, and depth across all samples in a session."""
+    return {
+        "mean_yaw_deg":   round(float(df["avg_yaw_deg"].mean()), 3),
+        "var_yaw_deg":    round(float(df["avg_yaw_deg"].var()), 3),
+        "mean_pitch_deg": round(float(df["pitch_deg"].mean()), 3),
+        "var_pitch_deg":  round(float(df["pitch_deg"].var()), 3),
+        "mean_depth_m":   round(float(df["depth_m"].mean()), 3),
+        "var_depth_m":    round(float(df["depth_m"].var()), 3),
+    }
+
+
 def fixation_metrics(
     fixations: pd.DataFrame,
     recording_duration_s: float,
@@ -89,6 +101,7 @@ def session_summary(
         **metadata,
         "recording_duration_s":  round(recording_duration_s, 2),
         "sampling_rate_hz":      round(hz, 2),
+        **gaze_signal_metrics(df),
         **fixation_metrics(fixations, recording_duration_s),
         **saccade_metrics(saccades),
     }

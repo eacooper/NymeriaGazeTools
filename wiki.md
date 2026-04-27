@@ -235,9 +235,24 @@ Fixations are detected using an I-DT (Identification by Dispersion Threshold) al
 
 ## 9. Metrics
 
-After detecting fixations and saccades, the toolkit can compute a concise set of numbers that summarize gaze behavior for a session. These are designed to be stacked across many sessions for comparison.
+The toolkit computes two kinds of metrics for a session: reliable signal-level summaries that describe the distribution of gaze across the recording, and event-based summaries for fixations and saccades. Because fixation and saccade detection is experimental at 10 Hz (see Section 8), the signal-level metrics are the more trustworthy starting point for cross-session comparisons.
 
-**Fixation metrics**
+**Gaze signal metrics**
+
+`gaze_signal_metrics()` takes the preprocessed DataFrame and returns the mean and variance of gaze yaw, pitch, and depth. These are computed directly from the cleaned signal — no event detection required.
+
+| Metric | What it means |
+|---|---|
+| `mean_yaw_deg` | Average horizontal gaze angle across the session. Values near zero mean gaze was centered; a non-zero mean indicates a consistent lateral bias toward one side. |
+| `var_yaw_deg` | How much horizontal gaze spread out over time. High variance means broad left-right scanning; low variance means gaze stayed laterally concentrated. |
+| `mean_pitch_deg` | Average vertical gaze angle. Slightly negative values (downward gaze) are typical for most everyday activities. Comparing across activities can reveal posture and task differences. |
+| `var_pitch_deg` | How much vertical gaze spread across the session. Low variance means gaze stayed at a consistent elevation; high variance means frequent up-down shifts. |
+| `mean_depth_m` | Average viewing distance in meters. Indoor activities tend to produce shorter depths; outdoor activities tend to produce longer ones. |
+| `var_depth_m` | How much viewing distance shifted throughout the session. High variance means frequent alternation between near objects (hands, a cutting board) and distant ones (a shelf, another person across the room). |
+
+**Fixation metrics** *(Experimental)*
+
+> **Note:** These metrics depend on fixation detection, which is experimental at 10 Hz. See Section 8.
 
 `fixation_metrics()` returns the following:
 
@@ -251,7 +266,9 @@ After detecting fixations and saccades, the toolkit can compute a concise set of
 | `iqr_duration_ms` | Interquartile range of durations — spread of the middle 50% |
 | `pct_time_in_fixation` | Percentage of the recording spent in a fixation |
 
-**Saccade metrics**
+**Saccade metrics** *(Experimental)*
+
+> **Note:** These metrics depend on saccade detection, which is experimental at 10 Hz. See Section 8.
 
 `saccade_metrics()` returns the following:
 
@@ -267,7 +284,7 @@ After detecting fixations and saccades, the toolkit can compute a concise set of
 
 **Session summary**
 
-`session_summary()` combines all of the above — plus recording duration and sampling rate — into a single-row DataFrame for a session. This makes it straightforward to concatenate results across hundreds of sessions and run group-level analyses. For a complete single-session pipeline that returns all of these together, use `analyze_session()`, or `analyze_sessions()` for batch processing. The batch function returns a `GroupResult` with two fields: `.summaries` — a single concatenated DataFrame with one row per session, ready for group-level analysis — and `.dfs` — a list of preprocessed DataFrames, one per session, which you can pass directly into the population density plots.
+`session_summary()` combines all of the above — gaze signal metrics first, then fixation and saccade metrics — plus recording duration and sampling rate, into a single-row DataFrame for a session. This makes it straightforward to concatenate results across hundreds of sessions and run group-level analyses. For a complete single-session pipeline that returns all of these together, use `analyze_session()`, or `analyze_sessions()` for batch processing. The batch function returns a `GroupResult` with two fields: `.summaries` — a single concatenated DataFrame with one row per session, ready for group-level analysis — and `.dfs` — a list of preprocessed DataFrames, one per session, which you can pass directly into the population density plots.
 
 ---
 

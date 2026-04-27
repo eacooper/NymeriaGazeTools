@@ -45,6 +45,7 @@ from nymeria_gaze_tools.events import (
 )
 
 from nymeria_gaze_tools.metrics import (
+    gaze_signal_metrics,
     fixation_metrics,
     saccade_metrics,
     session_summary,
