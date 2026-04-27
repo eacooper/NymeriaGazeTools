@@ -454,7 +454,6 @@ def plot_gaze_position_boxplots(
     fig.update_layout(
         title_text=title or f"Gaze position distribution by group  |  {axis_label}",
         yaxis_title=axis_label,
-        boxmode="group",
         width=200 * max(len(groups), 2) + 200,
         height=500,
         autosize=False,
