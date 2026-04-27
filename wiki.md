@@ -318,6 +318,7 @@ Plots saccade amplitude against peak velocity. Saccades appear in blue, artifact
 **Population Density**
 
 Similar to the heatmap, but built from multiple sessions at once. Each session is normalized by its sample count before averaging, so longer recordings don't dominate the result. Useful for understanding group-level gaze patterns across participants or activities. Use `plot_population_density(dfs)` for a single group, or `plot_population_density_grid(groups)` to compare multiple groups side by side.
+<img width="920" height="500" alt="population heatmaps" src="https://github.com/user-attachments/assets/0b2383f9-a0e1-4e5b-b5f3-36542da3edb8" />
 
 ---
 
