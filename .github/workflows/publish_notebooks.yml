@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - examples/population_gaze_heatmaps.ipynb
+      - examples/*.ipynb
 
 permissions:
   contents: write
@@ -25,11 +25,11 @@ jobs:
       - name: Install nbconvert
         run: pip install nbconvert
 
-      - name: Convert notebook to HTML
+      - name: Convert notebooks to HTML
         run: |
           jupyter nbconvert \
             --to html \
-            examples/population_gaze_heatmaps.ipynb \
+            examples/*.ipynb \
             --output-dir site/examples/
 
       - name: Deploy to GitHub Pages
