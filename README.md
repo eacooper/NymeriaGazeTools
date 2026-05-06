@@ -37,7 +37,7 @@ pip install jupyter ipywidgets
 
 ## Getting your data
 
-The data is not included in the repo. The recommended way is to download from HuggingFace:
+The data is not included in the repo. The recommended way is to download from [HuggingFace](https://huggingface.co/datasets/nymeriagazedata/eye-gaze-data):
 
 ```bash
 export HF_TOKEN=your_token
@@ -50,7 +50,7 @@ If you have the official `nymeria_download_urls.json` from Meta's Nymeria page a
 python downloadScripts/download_eyegaze.py
 ```
 
-See the [wiki](wiki.md) for full details on both scripts.
+See the [wiki](https://github.com/eacooper/NymeriaGazeTools/wiki) for full details on both scripts.
 
 ## Quick start
 
