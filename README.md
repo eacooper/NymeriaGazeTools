@@ -23,17 +23,30 @@ source .venv/bin/activate        # Mac/Linux
 # .venv\Scripts\activate         # Windows
 ```
 
-**3. Install the package**
+**3. Install the package and Jupyter dependencies**
 
 ```bash
 pip install -e .
-```
-
-**4. Install Jupyter** (needed to run the example notebooks)
-
-```bash
 pip install jupyter ipywidgets
 ```
+
+**4. Register the environment as a Jupyter kernel**
+
+```bash
+python -m ipykernel install --user --name=nymeria --display-name "Python (nymeria)"
+```
+
+This registers the virtual environment as a named kernel so any Jupyter installation on your machine (Anaconda, JupyterLab, system) can use it.
+
+**5. Launch Jupyter and select the kernel**
+
+```bash
+jupyter notebook
+```
+
+When a notebook opens, go to **Kernel > Change Kernel > Python (nymeria)**. You only need to do this once per notebook — Jupyter remembers the kernel choice.
+
+> **Troubleshooting:** If you see `ModuleNotFoundError` for `plotly` or `nymeria_gaze_tools`, the notebook is running on the wrong kernel. Check the kernel name in the top-right corner of the notebook and switch it to **Python (nymeria)**.
 
 ## Getting your data
 
