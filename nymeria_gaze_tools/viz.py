@@ -13,6 +13,19 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
 
+_COL_LABELS: dict[str, str] = {
+    "avg_yaw_deg": "Mean Yaw (°)",
+    "pitch_deg":   "Pitch (°)",
+    "depth_m":     "Depth (m)",
+}
+
+
+def _col_label(col: str) -> str:
+    """Return a human-readable axis label for a DataFrame column name."""
+    if col in _COL_LABELS:
+        return _COL_LABELS[col]
+    return col.replace("avg_", "Mean ").replace("_deg", " (°)").replace("_m", " (m)").replace("_", " ").title()
+
 
 def _confidence_band(
     fig: go.Figure,
@@ -76,7 +89,7 @@ def plot_gaze_timeseries(
     _confidence_band(fig, 1, t,
                      df["right_yaw_low_deg"], df["right_yaw_high_deg"], df["right_yaw_deg"],
                      "Right Eye", "255,140,0", "darkorange")
-    fig.add_trace(go.Scatter(x=t, y=df["avg_yaw_deg"], name="Avg (binocular)",
+    fig.add_trace(go.Scatter(x=t, y=df["avg_yaw_deg"], name="Mean (binocular)",
                              line=dict(width=2, color="black")), row=1, col=1)
 
     _confidence_band(fig, 2, t,
@@ -117,15 +130,15 @@ def plot_gaze_scatter(
     colormap accepts any Plotly colorscale name (e.g. 'viridis', 'plasma', 'turbo').
     """
     meta   = meta or {}
-    _title = title or f"{x}  vs  {y}  —  colored by {color}"
+    _title = title or f"{_col_label(x)}  vs  {_col_label(y)}  —  colored by {_col_label(color)}"
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=df[x], y=df[y],
         mode="markers",
         marker=dict(size=3, color=df[color], colorscale=colormap, opacity=0.6,
-                    colorbar=dict(title=color)),
-        hovertemplate=f"{x}: %{{x:.2f}}<br>{y}: %{{y:.2f}}<br>{color}: %{{marker.color:.2f}}<extra></extra>",
+                    colorbar=dict(title=_col_label(color))),
+        hovertemplate=f"{_col_label(x)}: %{{x:.2f}}<br>{_col_label(y)}: %{{y:.2f}}<br>{_col_label(color)}: %{{marker.color:.2f}}<extra></extra>",
     ))
 
     # crosshairs at origin for spatial reference
@@ -134,8 +147,8 @@ def plot_gaze_scatter(
 
     fig.update_layout(
         title_text=_title,
-        xaxis_title=x,
-        yaxis_title=y,
+        xaxis_title=_col_label(x),
+        yaxis_title=_col_label(y),
         width=650, height=550,
         autosize=False,
     )
@@ -155,7 +168,7 @@ def plot_gaze_heatmap(
 
     Empty bins are transparent. colormap accepts any Plotly colorscale name.
     """
-    _title = title or f"Joint distribution:  {x}  ×  {y}"
+    _title = title or f"Joint distribution:  {_col_label(x)}  ×  {_col_label(y)}"
 
     fig = go.Figure()
     fig.add_trace(go.Histogram2d(
@@ -171,8 +184,8 @@ def plot_gaze_heatmap(
 
     fig.update_layout(
         title_text=_title,
-        xaxis_title=x,
-        yaxis_title=y,
+        xaxis_title=_col_label(x),
+        yaxis_title=_col_label(y),
         width=550, height=550,
         autosize=False,
     )
@@ -275,7 +288,7 @@ def plot_population_density(
     Each df is normalized by its sample count before averaging so all
     participants contribute equally regardless of session length.
     """
-    _title = title or f"Population density:  {x}  ×  {y}  (n={len(dfs)})"
+    _title = title or f"Population density:  {_col_label(x)}  ×  {_col_label(y)}  (n={len(dfs)})"
 
     # consistent grid across all participants
     x_all    = pd.concat([df[x].dropna() for df in dfs])
@@ -306,8 +319,8 @@ def plot_population_density(
 
     fig.update_layout(
         title_text=_title,
-        xaxis_title=x,
-        yaxis_title=y,
+        xaxis_title=_col_label(x),
+        yaxis_title=_col_label(y),
         width=550, height=550,
         autosize=False,
     )
@@ -398,11 +411,11 @@ def plot_population_density_grid(
         fig.add_vline(x=0, line=dict(color="white", width=0.8, dash="dash"),
                       row=row, col=col)
 
-    fig.update_xaxes(title_text=x)
-    fig.update_yaxes(title_text=y, col=1)
+    fig.update_xaxes(title_text=_col_label(x))
+    fig.update_yaxes(title_text=_col_label(y), col=1)
 
     fig.update_layout(
-        title_text=title or f"Population density by group:  {x}  ×  {y}",
+        title_text=title or f"Population density by group:  {_col_label(x)}  ×  {_col_label(y)}",
         width=panel_size * n_cols + 80,
         height=panel_size * n_rows + 80,
         autosize=False,
@@ -449,7 +462,7 @@ def plot_gaze_position_boxplots(
             line=dict(width=1.5),
         ))
 
-    axis_label = column.replace("avg_", "").replace("_deg", " (°)").replace("_m", " (m)").replace("_", " ").title()
+    axis_label = _col_label(column)
 
     fig.update_layout(
         title_text=title or f"Gaze position distribution by group  |  {axis_label}",

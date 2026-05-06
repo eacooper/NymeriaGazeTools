@@ -259,6 +259,10 @@ Raw gaze data straight from the dataset isn't quite ready for analysis. The prep
 
 9. **Compute velocity** — `compute_velocity()` produces three columns: `yaw_velocity_deg_s` and `pitch_velocity_deg_s` for the component rates, and `angular_velocity_deg_s` for the combined speed magnitude. If timestamps aren't available, it assumes a 10 Hz sampling rate as a fallback.
 
+**Notebook example**
+
+For a runnable walkthrough of these steps, see `examples/preprocessing_example.ipynb`. It uses the same sample session as `individual_gaze_analysis.ipynb`, trims the first 2 minutes and the last 1 minute of the recording, then applies each preprocessing function one at a time before comparing the result with the one-call `preprocess()` helper.
+
 ---
 
 ## 8. Detecting Fixations & Saccades *(Experimental)*

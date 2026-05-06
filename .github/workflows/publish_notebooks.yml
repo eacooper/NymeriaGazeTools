@@ -28,10 +28,10 @@ jobs:
 
       - name: Convert notebooks to HTML
         run: |
-          jupyter nbconvert \
-            --to html \
-            examples/*.ipynb \
-            --output-dir site/examples/
+          mkdir -p site/examples/
+          jupyter nbconvert --to html examples/*.ipynb --output-dir site/examples/
+          echo "--- Generated files ---"
+          ls site/examples/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
