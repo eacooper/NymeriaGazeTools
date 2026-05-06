@@ -324,14 +324,6 @@ Shows angular velocity over time. Spikes correspond to saccades; flat, low regio
 
 ---
 
-**Main Sequence** *(Experimental)*
-
-Plots saccade amplitude against peak velocity. Saccades appear in blue, artifacts in gray. Because saccade detection is experimental at 10 Hz, treat this as a rough qualitative check rather than precise measurement. Use `plot_main_sequence(saccades)`.
-
-<img width="580" height="500" alt="mainsequence" src="https://github.com/user-attachments/assets/0325bea5-5bf3-4885-aef7-42d9712215f8" />
-
----
-
 **Population Density**
 
 Similar to the heatmap, but built from multiple sessions at once. Each session is normalized by its sample count before averaging, so longer recordings don't dominate the result. Useful for understanding group-level gaze patterns across participants or activities. Use `plot_population_density(dfs)` for a single group, or `plot_population_density_grid(groups)` to compare multiple groups side by side.
@@ -343,4 +335,3 @@ Similar to the heatmap, but built from multiple sessions at once. Each session i
 
 The 1D counterpart to the population density map. Pools all gaze samples across sessions in each group and draws one box per group, making it easy to compare the spread and central tendency of yaw or pitch across demographics. Pass a `groups` dict mapping labels to lists of preprocessed DataFrames, and set `column` to `"avg_yaw_deg"` or `"pitch_deg"`. Use `plot_gaze_position_boxplots(groups, column="avg_yaw_deg")`.
 <img width="1400" height="500" alt="boxwhisker" src="https://github.com/user-attachments/assets/cc7fb676-fb78-4d20-8828-3819f2d036f5" />
-
