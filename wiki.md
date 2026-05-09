@@ -261,7 +261,7 @@ Raw gaze data straight from the dataset isn't quite ready for analysis. The prep
 
 **Notebook example**
 
-For a runnable walkthrough of these steps, see `examples/preprocessing_example.ipynb`. It uses the same sample session as `individual_gaze_analysis.ipynb`, trims the first 2 minutes and the last 1 minute of the recording, then applies each preprocessing function one at a time before comparing the result with the one-call `preprocess()` helper.
+For a runnable walkthrough of these steps, see `examples/preprocessing_example.ipynb` ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/preprocessing_example.html)). It uses the same sample session as `individual_gaze_analysis.ipynb`, trims the first 2 minutes and the last 1 minute of the recording, then applies each preprocessing function one at a time before comparing the result with the one-call `preprocess()` helper.
 
 ---
 
@@ -272,6 +272,8 @@ For a runnable walkthrough of these steps, see `examples/preprocessing_example.i
 Once your data is preprocessed, you can identify fixations and saccades using `get_fixation_table()` and `get_saccade_table()`. For a complete single-session pipeline, use `analyze_session()`.
 
 Fixations are detected using an I-DT (Identification by Dispersion Threshold) algorithm. Saccades are derived from the gaps between consecutive fixations rather than velocity peaks, since the 10 Hz signal is too coarse for direct velocity-based detection. Gaps longer than 200 ms are flagged as artifacts (likely blinks or dropouts) rather than saccades.
+
+For a runnable example of the full single-session pipeline, see `examples/individual_gaze_analysis.ipynb` ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/individual_gaze_analysis.html)).
 
 ---
 
@@ -328,6 +330,8 @@ The toolkit computes two kinds of metrics for a session: reliable signal-level s
 
 `session_summary()` combines all of the above — gaze signal metrics first, then fixation and saccade metrics — plus recording duration and sampling rate, into a single-row DataFrame for a session. This makes it straightforward to concatenate results across hundreds of sessions and run group-level analyses. For a complete single-session pipeline that returns all of these together, use `analyze_session()`, or `analyze_sessions()` for batch processing. The batch function returns a `GroupResult` with two fields: `.summaries` — a single concatenated DataFrame with one row per session, ready for group-level analysis — and `.dfs` — a list of preprocessed DataFrames, one per session, which you can pass directly into the population density plots.
 
+For a runnable example using the high-level API, see `examples/quick_analysis.ipynb` ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/quick_analysis.html)).
+
 ---
 
 ## 10. Visualizations
@@ -368,12 +372,12 @@ Shows angular velocity over time. Spikes correspond to saccades; flat, low regio
 
 **Population Density**
 
-Similar to the heatmap, but built from multiple sessions at once. Each session is normalized by its sample count before averaging, so longer recordings don't dominate the result. Useful for understanding group-level gaze patterns across participants or activities. Use `plot_population_density(dfs)` for a single group, or `plot_population_density_grid(groups)` to compare multiple groups side by side.
+Similar to the heatmap, but built from multiple sessions at once. Each session is normalized by its sample count before averaging, so longer recordings don't dominate the result. Useful for understanding group-level gaze patterns across participants or activities. Use `plot_population_density(dfs)` for a single group, or `plot_population_density_grid(groups)` to compare multiple groups side by side. See `examples/population_gaze_heatmaps.ipynb` ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/population_gaze_heatmaps.html)).
 <img width="920" height="500" alt="population heatmaps" src="https://github.com/user-attachments/assets/0b2383f9-a0e1-4e5b-b5f3-36542da3edb8" />
 
 ---
 
 **Gaze Position Boxplots**
 
-The 1D counterpart to the population density map. Pools all gaze samples across sessions in each group and draws one box per group, making it easy to compare the spread and central tendency of yaw or pitch across demographics. Pass a `groups` dict mapping labels to lists of preprocessed DataFrames, and set `column` to `"avg_yaw_deg"` or `"pitch_deg"`. Use `plot_gaze_position_boxplots(groups, column="avg_yaw_deg")`.
+The 1D counterpart to the population density map. Pools all gaze samples across sessions in each group and draws one box per group, making it easy to compare the spread and central tendency of yaw or pitch across demographics. Pass a `groups` dict mapping labels to lists of preprocessed DataFrames, and set `column` to `"avg_yaw_deg"` or `"pitch_deg"`. Use `plot_gaze_position_boxplots(groups, column="avg_yaw_deg")`. See `examples/population_gaze_boxplots.ipynb` ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/population_gaze_boxplots.html)).
 <img width="1400" height="500" alt="boxwhisker" src="https://github.com/user-attachments/assets/cc7fb676-fb78-4d20-8828-3819f2d036f5" />

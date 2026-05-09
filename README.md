@@ -84,9 +84,10 @@ print(result.summary)
 
 ## Examples
 
-The `examples/` folder contains Jupyter notebooks demonstrating how to use the toolkit:
+The `examples/` folder contains Jupyter notebooks demonstrating how to use the toolkit. You can view each notebook with interactive visualizations rendered online — no installation needed:
 
-- **preprocessing_example.ipynb** — walks through preprocessing one step at a time for a single session, trimming the first 2 minutes and last 1 minute before normalizing timestamps, converting units, cleaning samples, computing binocular gaze, confidence widths, and velocity
-- **individual_gaze_analysis.ipynb** — steps through the full pipeline manually for a single session: load, preprocess, detect fixations and saccades, then plot gaze time series, scatter, heatmaps, velocity trace, and the saccade main sequence *(experimental)*
-- **quick_analysis.ipynb** — uses the high-level `analyze_session()` and `analyze_sessions()` API to run the full pipeline in one call, covering both single-session and small-batch analysis, with a population density plot at the end
-- **population_gaze_heatmaps.ipynb** — generates population-level gaze density heatmaps across all 20 activities, broken down by age group and by gender, using `plot_population_density_grid()`
+- **preprocessing_example.ipynb** ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/preprocessing_example.html)) — walks through preprocessing one step at a time for a single session, trimming the first 2 minutes and last 1 minute before normalizing timestamps, converting units, cleaning samples, computing binocular gaze, confidence widths, and velocity
+- **individual_gaze_analysis.ipynb** ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/individual_gaze_analysis.html)) — steps through the full pipeline manually for a single session: load, preprocess, detect fixations and saccades, then plot gaze time series, scatter, heatmaps, velocity trace, and the saccade main sequence *(experimental)*
+- **quick_analysis.ipynb** ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/quick_analysis.html)) — uses the high-level `analyze_session()` and `analyze_sessions()` API to run the full pipeline in one call, covering both single-session and small-batch analysis, with a population density plot at the end
+- **population_gaze_heatmaps.ipynb** ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/population_gaze_heatmaps.html)) — generates population-level gaze density heatmaps across all 20 activities, broken down by age group and by gender, using `plot_population_density_grid()`
+- **population_gaze_boxplots.ipynb** ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/population_gaze_boxplots.html)) — plots the distribution of raw yaw and pitch gaze positions across the population for each activity, grouped by age group and gender, using `plot_gaze_position_boxplots()`
