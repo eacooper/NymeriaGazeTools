@@ -10,7 +10,7 @@ readme = "README.md"
 license = "MIT"
 authors = [
     { name = "Devi Sivakumar", email = "devi.sivakumar2024@gmail.com" },
-    { name = "Emily Cooper", email = "eacooper@berkeley.edu" },
+    { name = "Emily Cooper", email = "emilyacooper@gmail.com" },
 ]
 requires-python = ">=3.10"
 dependencies = [
