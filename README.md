@@ -91,3 +91,9 @@ The `examples/` folder contains Jupyter notebooks demonstrating how to use the t
 - **quick_analysis.ipynb** ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/quick_analysis.html)) — uses the high-level `analyze_session()` and `analyze_sessions()` API to run the full pipeline in one call, covering both single-session and small-batch analysis, with a population density plot at the end
 - **population_gaze_heatmaps.ipynb** ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/population_gaze_heatmaps.html)) — generates population-level gaze density heatmaps across all 20 activities, broken down by age group and by gender, using `plot_population_density_grid()`
 - **population_gaze_boxplots.ipynb** ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/population_gaze_boxplots.html)) — plots the distribution of raw yaw and pitch gaze positions across the population for each activity, grouped by age group and gender, using `plot_gaze_position_boxplots()`
+
+
+## Projects built with this toolkit
+
+**Decoding Gaze** ([site](https://devi-sivakumar-ds.github.io/Decoding-Gaze/viz/) · [repo](https://github.com/devi-sivakumar-ds/Decoding-Gaze)) — an interactive D3.js visualization built for the Information Visualization course. It uses the HuggingFace dataset and `nymeria_gaze_tools` to explore how gaze position on an AR glasses lens varies by activity, with an interactive AR overlay design tool.
+
