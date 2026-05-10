@@ -91,6 +91,7 @@ The `examples/` folder contains Jupyter notebooks demonstrating how to use the t
 - **quick_analysis.ipynb** ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/quick_analysis.html)) — uses the high-level `analyze_session()` and `analyze_sessions()` API to run the full pipeline in one call, covering both single-session and small-batch analysis, with a population density plot at the end
 - **population_gaze_heatmaps.ipynb** ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/population_gaze_heatmaps.html)) — generates population-level gaze density heatmaps across all 20 activities, broken down by age group and by gender, using `plot_population_density_grid()`
 - **population_gaze_boxplots.ipynb** ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/population_gaze_boxplots.html)) — plots the distribution of raw yaw and pitch gaze positions across the population for each activity, grouped by age group and gender, using `plot_gaze_position_boxplots()`
+- **cooking_analysis.ipynb** ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/cooking_analysis.html)) — deep-dives into S7-Cooking, the largest activity in the dataset (154 sessions). Computes gaze signal metrics for every session, then breaks down mean and variance of yaw, pitch, and depth by age group using `plot_gaze_position_boxplots()`
 
 
 ## Projects built with this toolkit

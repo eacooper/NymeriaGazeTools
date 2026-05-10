@@ -379,7 +379,9 @@ Similar to the heatmap, but built from multiple sessions at once. Each session i
 
 **Gaze Position Boxplots**
 
-The 1D counterpart to the population density map. Pools all gaze samples across sessions in each group and draws one box per group, making it easy to compare the spread and central tendency of yaw or pitch across demographics. Pass a `groups` dict mapping labels to lists of preprocessed DataFrames, and set `column` to `"avg_yaw_deg"` or `"pitch_deg"`. Use `plot_gaze_position_boxplots(groups, column="avg_yaw_deg")`. See `examples/population_gaze_boxplots.ipynb` ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/population_gaze_boxplots.html)).
+The 1D counterpart to the population density map. Pools all gaze samples across sessions in each group and draws one box per group, making it easy to compare the spread and central tendency of yaw or pitch across demographics. Pass a `groups` dict mapping labels to lists of preprocessed DataFrames, and set `column` to any gaze column — raw signal columns like `"avg_yaw_deg"` or `"pitch_deg"`, or session-level summary columns like `"mean_depth_m"` or `"var_yaw_deg"`. Use `plot_gaze_position_boxplots(groups, column="avg_yaw_deg")`.
+
+The grouping is done in the notebook, not the toolkit — build your `groups` dict from whatever demographic split you care about, then loop over whichever columns you want to compare. See `examples/population_gaze_boxplots.ipynb` ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/population_gaze_boxplots.html)) for raw gaze grouped by age and gender across all activities, and `examples/cooking_analysis.ipynb` ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/cooking_analysis.html)) for session-level signal metrics grouped by age group within a single activity (S7-Cooking).
 <img width="1400" height="500" alt="boxwhisker" src="https://github.com/user-attachments/assets/cc7fb676-fb78-4d20-8828-3819f2d036f5" />
 
 ---

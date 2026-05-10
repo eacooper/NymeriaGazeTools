@@ -14,10 +14,40 @@ from plotly.subplots import make_subplots
 import pandas as pd
 
 _COL_LABELS: dict[str, str] = {
-    "avg_yaw_deg": "Mean Yaw (°)",
-    "pitch_deg":   "Pitch (°)",
-    "depth_m":     "Depth (m)",
+    "avg_yaw_deg":   "Mean Yaw (°)",
+    "pitch_deg":     "Pitch (°)",
+    "depth_m":       "Depth (m)",
+    "mean_yaw_deg":  "Mean Yaw (°)",
+    "var_yaw_deg":   "Yaw Variance (°²)",
+    "mean_pitch_deg": "Mean Pitch (°)",
+    "var_pitch_deg": "Pitch Variance (°²)",
+    "mean_depth_m":  "Mean Depth (m)",
+    "var_depth_m":   "Depth Variance (m²)",
 }
+
+_MUTED_COLORS = [
+    "#6B9E6B",  # sage green
+    "#C49A55",  # golden tan
+    "#8B7B55",  # olive brown
+    "#5C4A3A",  # dark chocolate
+    "#D4A0B5",  # dusty pink
+    "#A05050",  # brick red
+    "#7A6AA8",  # dusty purple
+    "#5A7AA0",  # slate blue
+]
+
+_BOX_LAYOUT = dict(
+    plot_bgcolor="white",
+    xaxis=dict(tickangle=-45, showgrid=False, linecolor="black", linewidth=1),
+    yaxis=dict(showgrid=True, gridcolor="#E0E0E0", gridwidth=0.5,
+               zeroline=False, linecolor="black", linewidth=1),
+)
+
+# Row 1 = means, Row 2 = variances; columns = yaw / pitch / depth
+_SIGNAL_METRICS_GRID = (
+    ("mean_yaw_deg",  "mean_pitch_deg",  "mean_depth_m"),
+    ("var_yaw_deg",   "var_pitch_deg",   "var_depth_m"),
+)
 
 
 def _col_label(col: str) -> str:
@@ -443,23 +473,21 @@ def plot_gaze_position_boxplots(
     title : str, optional
         Figure title.
     """
-    colors = [
-        "#636EFA", "#EF553B", "#00CC96", "#AB63FA",
-        "#FFA15A", "#19D3F3", "#FF6692", "#B6E880",
-    ]
-
     fig = go.Figure()
 
     for g_idx, (label, dfs) in enumerate(groups.items()):
         if not dfs:
             continue
         values = pd.concat([df[column].dropna() for df in dfs if column in df.columns])
+        color = _MUTED_COLORS[g_idx % len(_MUTED_COLORS)]
         fig.add_trace(go.Box(
             y=values,
             name=str(label),
-            marker_color=colors[g_idx % len(colors)],
-            boxpoints=False,
-            line=dict(width=1.5),
+            fillcolor=color,
+            line=dict(color=color, width=1.5),
+            marker=dict(color=color, symbol="circle-open", size=4, opacity=0.8),
+            boxpoints="outliers",
+            width=0.5,
         ))
 
     axis_label = _col_label(column)
@@ -470,6 +498,7 @@ def plot_gaze_position_boxplots(
         width=200 * max(len(groups), 2) + 200,
         height=500,
         autosize=False,
+        **_BOX_LAYOUT,
     )
 
     return fig
