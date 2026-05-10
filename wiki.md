@@ -381,3 +381,20 @@ Similar to the heatmap, but built from multiple sessions at once. Each session i
 
 The 1D counterpart to the population density map. Pools all gaze samples across sessions in each group and draws one box per group, making it easy to compare the spread and central tendency of yaw or pitch across demographics. Pass a `groups` dict mapping labels to lists of preprocessed DataFrames, and set `column` to `"avg_yaw_deg"` or `"pitch_deg"`. Use `plot_gaze_position_boxplots(groups, column="avg_yaw_deg")`. See `examples/population_gaze_boxplots.ipynb` ([view interactive notebook](https://eacooper.github.io/NymeriaGazeTools/examples/population_gaze_boxplots.html)).
 <img width="1400" height="500" alt="boxwhisker" src="https://github.com/user-attachments/assets/cc7fb676-fb78-4d20-8828-3819f2d036f5" />
+
+---
+
+## 11. Projects Built With This Toolkit
+
+### Decoding Gaze
+
+**Course project — not peer-reviewed research.**
+
+[Decoding Gaze](https://devi-sivakumar-ds.github.io/Decoding-Gaze/viz/) ([source](https://github.com/devi-sivakumar-ds/Decoding-Gaze)) was built for the Information Visualization course. It's a concrete example of what you can build on top of this toolkit and the HuggingFace dataset with relatively little setup.
+
+The project asks whether the activity someone is doing changes where their gaze lands on their AR glasses lens — and what that means for UI overlay placement. It loads the processed Nymeria data directly from HuggingFace and uses `nymeria_gaze_tools` for preprocessing and the lens-hit geometry that converts raw gaze angles into (x, y) positions in millimeters on the lens. The core finding: vertical gaze position varies significantly by activity - a 3.5mm spread from Cooking at the bottom to Relaxing near the top, consistent across gender and age subgroups.
+
+The visualization is a three-act D3.js narrative: an animated gaze trail synced with first-person camera frames (Act 1), a centroid map and strip chart showing the activity pattern across all 640 sessions (Act 2), and a draggable AR overlay designer where you place a UI element on the lens and watch the gaze-density overlap update live (Act 3).
+
+**Scope and assumptions:** The 10Hz sampling rate ruled out fixation/saccade detection and vergence analysis. All positions are in the head-relative CPF frame with no head motion separation. Only 8 of 20 Nymeria activities are used, selected for sample size, interpretability, and narrative range. Full details are in the project repo.
+
